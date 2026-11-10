@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FUNNEL_TEMPLATES, TEMPLATE_PER_SCENARIO, CAMPI_NOTI, getTemplate, anteprimaTesto } from "../src/lib/funnels/templates";
-import { funnelSchema, nomeCampo } from "../src/lib/funnels/validation";
-import { SCENARI, SCENARIO_GENERICO } from "../src/lib/campaigns/scenarios";
-import { allowedTransitions, canTransition, funnelEditable } from "../src/lib/campaigns/status";
-import { leadInputSchema } from "../src/lib/leads/validation";
+import { FUNNEL_TEMPLATES, TEMPLATE_PER_SCENARIO, CAMPI_NOTI, getTemplate, anteprimaTesto } from "../lib/funnels/templates";
+import { funnelSchema, nomeCampo } from "../lib/funnels/validation";
+import { SCENARI, SCENARIO_GENERICO } from "../lib/campaigns/scenarios";
+import { allowedTransitions, canTransition, funnelEditable } from "../lib/campaigns/status";
+import { leadInputSchema } from "../lib/leads/validation";
 
 const daModello = (key: string) => {
   const t = getTemplate(key)!;

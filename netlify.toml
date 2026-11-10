@@ -1,0 +1,5 @@
+[build]
+  command = "drizzle-kit push --force && tsx db/seed.ts && next build"
+
+[build.environment]
+  NODE_VERSION = "22"

@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { TIPI_EVENTO, compila, dataLunga, tipoOrDefault } from "../src/lib/events/catalog";
-import { blocchiIscrizione, eventoSchema, metricheEvento, programmaComunicazioni, campiIscrizione, fasciaDi } from "../src/lib/events/logic";
-import { problemiPubblicazione, blocchiSchema } from "../src/lib/landing/blocks";
-import { bloccoDipendenza, creaCiclo, grigliaMese, meseVicino, meseValido, barra, scadenzaIncoerente } from "../src/lib/calendar/logic";
-import { TIPI_ASSET, assetSchema, effettoModifica, puoPassare, transizioniAsset } from "../src/lib/assets/catalog";
-import { periodo, suggerimenti, settimanaDi, chiaviPeriodo, percento, costoPer } from "../src/lib/report/logic";
-import { allowedTransitions } from "../src/lib/campaigns/status";
+import { TIPI_EVENTO, compila, dataLunga, tipoOrDefault } from "../lib/events/catalog";
+import { blocchiIscrizione, eventoSchema, metricheEvento, programmaComunicazioni, campiIscrizione, fasciaDi } from "../lib/events/logic";
+import { problemiPubblicazione, blocchiSchema } from "../lib/landing/blocks";
+import { bloccoDipendenza, creaCiclo, grigliaMese, meseVicino, meseValido, barra, scadenzaIncoerente } from "../lib/calendar/logic";
+import { TIPI_ASSET, assetSchema, effettoModifica, puoPassare, transizioniAsset } from "../lib/assets/catalog";
+import { periodo, suggerimenti, settimanaDi, chiaviPeriodo, percento, costoPer } from "../lib/report/logic";
+import { allowedTransitions } from "../lib/campaigns/status";
 
 test("eventi: 9 tipi completi, chiavi uniche, testi senza segnaposto sconosciuti", () => {
   assert.equal(TIPI_EVENTO.length, 9);
@@ -229,7 +229,7 @@ test("suggerimenti: regole leggibili, priorità in alto", () => {
   assert.ok(s.findIndex((x) => x.livello === "info") > s.findLastIndex((x) => x.livello === "alta"));
 });
 
-import { scoreLead, scoreDaLead } from "../src/lib/leads/score";
+import { scoreLead, scoreDaLead } from "../lib/leads/score";
 test("presenza all'evento: +25 punti, tetto a 100", () => {
   // Iscritto con sola email e interesse: 25 → non qualificato; se si presenta: 50 → qualificato.
   const base = { reparto: "VENDITA" as const, email: "a@b.it", interesse: "Barca usata" };

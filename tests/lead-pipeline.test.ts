@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { normalizePhone, leadInputSchema } from "../src/lib/leads/validation";
-import { scoreLead, isQualified, scoreBand } from "../src/lib/leads/score";
-import { buildNautilusImport, leadsToCsv, origineNautilus, prossimoGiornoLavorativo, dataItalia, NAUTILUS_ORIGINI } from "../src/lib/crm/nautilus";
-import type { Lead } from "../src/db/schema";
+import { normalizePhone, leadInputSchema } from "../lib/leads/validation";
+import { scoreLead, isQualified, scoreBand } from "../lib/leads/score";
+import { buildNautilusImport, leadsToCsv, origineNautilus, prossimoGiornoLavorativo, dataItalia, NAUTILUS_ORIGINI } from "../lib/crm/nautilus";
+import type { Lead } from "../db/schema";
 
 test("telefono: normalizzazione italiani ed esteri", () => {
   assert.equal(normalizePhone("333 123 4567"), "+39 3331234567");

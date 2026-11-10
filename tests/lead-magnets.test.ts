@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { LM_TIPI, LM_PER_SCENARIO, CHECKLIST_COMUNE, getLmTipo } from "../src/lib/leadmagnets/catalog";
-import { generateLeadMagnet, controllaLimiti, entroLimite, lmContentSchema } from "../src/lib/leadmagnets/generate";
-import { LIMITI } from "../src/types/lead-magnet";
-import { SCENARI, SCENARIO_GENERICO } from "../src/lib/campaigns/scenarios";
-import { getTemplate } from "../src/lib/funnels/templates";
+import { LM_TIPI, LM_PER_SCENARIO, CHECKLIST_COMUNE, getLmTipo } from "../lib/leadmagnets/catalog";
+import { generateLeadMagnet, controllaLimiti, entroLimite, lmContentSchema } from "../lib/leadmagnets/generate";
+import { LIMITI } from "../types/lead-magnet";
+import { SCENARI, SCENARIO_GENERICO } from "../lib/campaigns/scenarios";
+import { getTemplate } from "../lib/funnels/templates";
 
 const SOGGETTI = [undefined, "gommoni Joker Boat", "barche a vela usate", "moto d'acqua Yamaha usate", "tagliando motori fuoribordo Yamaha da 150 cavalli e oltre per la stagione"];
 
@@ -73,7 +73,7 @@ test("deterministico", () => {
   assert.throws(() => generateLeadMagnet({ tipo: "inesistente" }));
 });
 
-import { rewriteLeadMagnet } from "../src/lib/ai/lm-copywriter";
+import { rewriteLeadMagnet } from "../lib/ai/lm-copywriter";
 test("AI: i testi oltre i limiti vengono scartati, il resto si usa", async () => {
   const base = generateLeadMagnet({ tipo: "permuta" }).content;
   process.env.AI_PROVIDER = "anthropic";
@@ -103,7 +103,7 @@ test("AI: i testi oltre i limiti vengono scartati, il resto si usa", async () =>
   delete process.env.ANTHROPIC_API_KEY;
 });
 
-import { lmToMarkdown } from "../src/lib/leadmagnets/markdown";
+import { lmToMarkdown } from "../lib/leadmagnets/markdown";
 test("esportazione Markdown: tutte le sezioni e la checklist con le spunte", () => {
   const { title, content } = generateLeadMagnet({ tipo: "permuta", tema: "cabinati" });
   const md = lmToMarkdown(title, { ...content, checklist: content.checklist.map((x, i) => ({ ...x, fatto: i === 0 })) }, { tipo: "Valutazione permuta", campagna: "Prova", stato: "Bozza" });

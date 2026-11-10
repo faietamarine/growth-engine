@@ -1,11 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bloccoIniziali, bloccoVuoto, problemiPubblicazione, embedVideo, TIPI_BLOCCO, blocchiSchema, CAMPI_BASE } from "../src/lib/landing/blocks";
-import { applicaVariante, confrontaVarianti, scegliVariante } from "../src/lib/landing/ab";
-import { generateLeadMagnet } from "../src/lib/leadmagnets/generate";
-import { getTemplate } from "../src/lib/funnels/templates";
-import { informativaCompilata, DEFAULT_SETTINGS } from "../src/lib/settings/defaults";
-import type { Blocco } from "../src/types/landing";
+import { bloccoIniziali, bloccoVuoto, problemiPubblicazione, embedVideo, TIPI_BLOCCO, blocchiSchema, CAMPI_BASE } from "../lib/landing/blocks";
+import { applicaVariante, confrontaVarianti, scegliVariante } from "../lib/landing/ab";
+import { generateLeadMagnet } from "../lib/leadmagnets/generate";
+import { getTemplate } from "../lib/funnels/templates";
+import { informativaCompilata, DEFAULT_SETTINGS } from "../lib/settings/defaults";
+import type { Blocco } from "../types/landing";
 
 const t = getTemplate("prova-mare")!;
 const funnel = { promise: t.promessa, cta: t.cta, formFields: t.form, steps: t.steps, leadMagnet: t.leadMagnet };
@@ -95,7 +95,7 @@ test("informativa: segnaposto sostituiti, campi mancanti segnalati", () => {
   assert.match(informativaCompilata({ ...DEFAULT_SETTINGS, emailPrivacy: "privacy@esempio.it" }), /privacy@esempio\.it/);
 });
 
-import { dataBreve } from "../src/lib/labels";
+import { dataBreve } from "../lib/labels";
 test("date brevi: giorno, data e ora completa, fuso di Roma", () => {
   assert.equal(dataBreve("2026-11-09"), "09 nov");
   assert.equal(dataBreve("2026-11-09T22:30:00.000Z"), "09 nov"); // 23:30 a Roma

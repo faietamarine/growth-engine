@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { generateCampaign, detectScenario, extractSubject, allocateBudget, addDays, diffDays, stagione, slugify, rescalePlan, defaultBudget } from "../src/lib/campaigns/generate";
-import { SCENARI, CPL_RIFERIMENTO } from "../src/lib/campaigns/scenarios";
-import { allowedTransitions, canTransition, editScope } from "../src/lib/campaigns/status";
-import { writeCopy } from "../src/lib/ai/copywriter";
+import { generateCampaign, detectScenario, extractSubject, allocateBudget, addDays, diffDays, stagione, slugify, rescalePlan, defaultBudget } from "../lib/campaigns/generate";
+import { SCENARI, CPL_RIFERIMENTO } from "../lib/campaigns/scenarios";
+import { allowedTransitions, canTransition, editScope } from "../lib/campaigns/status";
+import { writeCopy } from "../lib/ai/copywriter";
 
 const OGGI = "2027-01-15";
 
@@ -200,7 +200,7 @@ test("AI: senza configurazione restano i testi del modello; risposta valida o er
   delete process.env.ANTHROPIC_API_KEY;
 });
 
-import { utmQuery, channelFromUtm, UTM_CANALE } from "../src/lib/campaigns/utm";
+import { utmQuery, channelFromUtm, UTM_CANALE } from "../lib/campaigns/utm";
 test("UTM: andata e ritorno canale → parametri → canale", () => {
   assert.equal(utmQuery("META", "prova-mare-2027"), "utm_source=facebook&utm_medium=cpc&utm_campaign=prova-mare-2027");
   for (const [c, u] of Object.entries(UTM_CANALE)) {
