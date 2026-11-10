@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette e font del "Tema A" di CRM Nautilus EVO (build bo/bt): blu navy, oro, grigi Windows 11.
+   Valori in formato "R G B" per poter usare le trasparenze di Tailwind (es. bg-navy/10). */
+:root {
+  --bg: 238 240 243; /* #EEF0F3 */
+  --surface: 255 255 255;
+  --hover: 243 244 246; /* #F3F4F6 */
+  --line: 225 228 233; /* #E1E4E9 */
+  --line-strong: 218 221 226; /* #DADDE2 */
+  --ink: 26 31 41; /* #1A1F29 */
+  --ink-soft: 100 113 132; /* #647184 */
+  --ink-faint: 120 131 148; /* scurito rispetto al CRM per contrasto AA */
+  --navy: 15 35 64; /* #0F2340 */
+  --navy-deep: 12 26 48; /* #0C1A30 */
+  --navy-hover: 31 58 102; /* #1F3A66 */
+  --gold: 184 137 47; /* #B8892F */
+  --gold-soft: 230 200 119; /* #E6C877 */
+  --aqua: 23 128 134; /* turchese, accento come il profilo Service del CRM */
+  --ok: 47 143 91; /* #2F8F5B */
+  --warn: 176 112 16;
+  --danger: 192 71 63; /* #C0473F */
+  --info: 53 104 176; /* #3568B0 */
+  --font-ui: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+/* Tema scuro: stessi colori del tema scuro del CRM (chiaro/scuro segue il dispositivo). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: 14 20 32;
+    --surface: 23 31 44;
+    --hover: 34 44 59;
+    --line: 42 52 68;
+    --line-strong: 53 64 82;
+    --ink: 230 234 240;
+    --ink-soft: 163 174 192;
+    --ink-faint: 128 139 156;
+    --navy: 77 125 212;
+    --navy-deep: 9 15 26;
+    --navy-hover: 96 140 222;
+    --aqua: 64 178 184;
+    --ok: 86 184 128;
+    --warn: 222 168 74;
+    --danger: 230 110 100;
+    --info: 110 155 222;
+    color-scheme: dark;
+  }
+}
+
+html,
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100dvh;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--gold));
+  outline-offset: 2px;
+}
+
+@layer components {
+  .card {
+    @apply rounded-lg border border-line bg-surface shadow-card;
+  }
+  .card-head {
+    @apply flex items-center justify-between gap-3 border-b border-line px-4 py-3;
+  }
+  .card-title {
+    @apply font-display text-[15px] font-semibold text-ink;
+  }
+  .btn {
+    @apply inline-flex min-h-[38px] items-center justify-center gap-2 rounded-md px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-navy text-white hover:bg-navy-hover;
+  }
+  .btn-gold {
+    @apply btn bg-gold text-navy-deep hover:bg-gold-soft;
+  }
+  .btn-ghost {
+    @apply btn border border-line-strong bg-surface text-ink hover:bg-hover;
+  }
+  .btn-sm {
+    @apply min-h-[32px] px-3 text-[13px];
+  }
+  .input {
+    @apply min-h-[40px] w-full rounded-md border border-line-strong bg-surface px-3 text-sm text-ink placeholder:text-ink-faint focus:border-navy focus:outline-none;
+  }
+  .label {
+    @apply mb-1 block text-[13px] font-semibold text-ink-soft;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}
