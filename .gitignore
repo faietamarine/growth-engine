@@ -1,0 +1,16 @@
+# Dipendenze e build generate
+node_modules/
+.next/
+out/
+tsconfig.tsbuildinfo
+
+# Ambiente locale e segreti
+.env
+.env.*
+!.env.example
+
+# Test e log
+coverage/
+*.log
+npm-debug.log*
+.DS_Store
