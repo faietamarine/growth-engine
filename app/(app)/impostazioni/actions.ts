@@ -4,8 +4,24 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth/session";
 import { settingsSchema } from "@/lib/settings/validation";
 import { saveSiteSettings } from "@/features/settings/service";
+import { CONFERMA_RESET_DEMO, svuotaDatiDemo } from "@/features/settings/reset-demo";
 
 export type SettingsState = { ok: boolean; msg: string } | undefined;
+
+export async function eliminaDatiDemo(_: SettingsState, form: FormData): Promise<SettingsState> {
+  const user = await requireUser("impostazioni:gestisci");
+  if (String(form.get("conferma") ?? "").trim() !== CONFERMA_RESET_DEMO) {
+    return { ok: false, msg: `Per confermare scrivi esattamente: ${CONFERMA_RESET_DEMO}` };
+  }
+  try {
+    await svuotaDatiDemo(user);
+  } catch (e) {
+    console.error("Reset dati demo non riuscito:", e);
+    return { ok: false, msg: "Non sono riuscito a eliminare i dati. Nulla è stato cancellato. Riprova o avvisami." };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true, msg: "Dati demo eliminati. Restano il tuo account Admin e le impostazioni dell'azienda." };
+}
 
 export async function salvaImpostazioni(_: SettingsState, form: FormData): Promise<SettingsState> {
   const user = await requireUser("impostazioni:gestisci");
