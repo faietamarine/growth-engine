@@ -1,5 +1,9 @@
 import { z } from "zod";
 import { CHANNELS, FUNNEL_STEP_TIPI, REPARTI } from "@/lib/enums";
+import { MARCHIO_SLUGS } from "@/lib/brands/catalog";
+
+/** Marchio facoltativo: stringa vuota = nessun marchio. */
+const marchio = z.preprocess((v) => (v === "" || v === null || v === undefined ? null : v), z.enum(MARCHIO_SLUGS as [string, ...string[]]).nullable());
 
 const data = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data non valida");
 const t = (max: number) => z.string().trim().max(max);
@@ -14,6 +18,7 @@ export const generateInputSchema = z.object({
   budget: z.preprocess((v) => (v === "" || v === null ? undefined : v), z.coerce.number().min(0, "Il budget non può essere negativo").max(500_000).optional()),
   leadTarget: z.preprocess((v) => (v === "" || v === null ? undefined : v), z.coerce.number().int().min(1).max(10_000).optional()),
   dettagli: t(600).optional(),
+  marchio: marchio.optional(),
 });
 export type GenerateFormInput = z.infer<typeof generateInputSchema>;
 
@@ -73,6 +78,7 @@ export const saveCampaignSchema = z.object({
   name: z.string().trim().min(5, "Il nome deve avere almeno 5 caratteri").max(120),
   objective: z.string().trim().min(10).max(400),
   reparto: z.enum(REPARTI),
+  brand: marchio.optional(),
   startDate: data,
   endDate: data,
   budget: z.number().min(0).max(500_000),

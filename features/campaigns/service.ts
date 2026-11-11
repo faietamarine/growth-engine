@@ -31,7 +31,7 @@ export async function createCampaign(input: SaveCampaignInput, user: User) {
   const { plan, leadTarget } = ricalcola(input.plan, input.budget, input.startDate, input.endDate, input.leadTarget || undefined);
   const [row] = await db
     .insert(campaigns)
-    .values({ name: input.name, objective: input.objective, reparto: input.reparto, status: "BOZZA", startDate: input.startDate, endDate: input.endDate, budget: input.budget, leadTarget, utmCampaign: utm, plan, ownerId: user.id })
+    .values({ name: input.name, objective: input.objective, reparto: input.reparto, brand: input.brand ?? null, status: "BOZZA", startDate: input.startDate, endDate: input.endDate, budget: input.budget, leadTarget, utmCampaign: utm, plan, ownerId: user.id })
     .returning({ id: campaigns.id });
   await audit(user, "campagna_creata", "campagna", row.id, `${input.name} · generata da ${plan.generatoDa}`);
   return row.id;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Megaphone, Users, Send, ListChecks, Plus, ArrowRight, CalendarClock, CircleAlert } from "lucide-react";
 import { getDashboard } from "@/features/dashboard/queries";
+import { riepilogoMarchi } from "@/features/brands/service";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/rbac";
 import { PageHeader } from "@/components/layout/page-header";
@@ -17,6 +18,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const user = await requireUser();
   const negato = (await searchParams).accesso === "negato";
   const { kpi, campagne, produzione, canali, ritardi, oggi } = await getDashboard();
+  const marchi = await riepilogoMarchi();
   const maxCanale = Math.max(1, ...canali.map((c) => c.n));
 
   return (
@@ -44,6 +46,31 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <Stat icon={Users} label="Lead del mese" value={kpi.leadMese} hint={`${kpi.leadQualMese} qualificati`} />
         <Stat icon={Send} label="Consegnati al CRM" value={kpi.consegnatiMese} hint="nel mese" />
         <Stat icon={ListChecks} label="Attività entro 7 giorni" value={produzione.length} hint={ritardi ? <span className="font-semibold text-danger">{ritardi} in ritardo</span> : "Nessun ritardo"} />
+      </section>
+
+      <section className="mt-6" aria-label="I marchi che rappresentiamo">
+        <h2 className="mb-2 text-[15px] font-semibold">I marchi</h2>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          {marchi.map(({ marchio: m, campagneAttive, campagneTotali, leadMese }) => (
+            <Link key={m.slug} href={`/marchi/${m.slug}`} className="card flex flex-col gap-3 p-4 transition hover:border-navy/40">
+              <span className="flex h-16 items-center justify-center rounded-md bg-white p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={m.logo} alt={m.nome} className="max-h-full max-w-full object-contain" />
+              </span>
+              <span className="text-[13px] font-semibold">{m.nome}</span>
+              <span className="text-[12.5px] text-ink-soft">
+                <span className="num font-semibold text-ink">{campagneAttive}</span> {campagneAttive === 1 ? "campagna attiva" : "campagne attive"}
+                {can(user.role, "lead:vedi") && (
+                  <>
+                    {" · "}
+                    <span className="num font-semibold text-ink">{leadMese}</span> lead nel mese
+                  </>
+                )}
+                {campagneAttive === 0 && campagneTotali === 0 && <span className="block text-ink-faint">Nessuna campagna ancora</span>}
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {kpi.inCoda > 0 && can(user.role, "lead:consegna") && (

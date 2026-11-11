@@ -46,6 +46,7 @@ export const campaigns = sqliteTable(
     name: text("name").notNull(),
     objective: text("objective").notNull(),
     reparto: text("reparto", { enum: REPARTI }).notNull().default("VENDITA"),
+    brand: text("brand"), // slug del marchio (lib/brands/catalog.ts), facoltativo
     status: text("status", { enum: WORK_STATUS }).notNull().default("BOZZA"),
     startDate: text("start_date"), // AAAA-MM-GG
     endDate: text("end_date"),

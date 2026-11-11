@@ -8,6 +8,7 @@ import { PlanView } from "@/features/campaigns/plan-view";
 import { Badge } from "@/components/ui/badge";
 import { REPARTO_UI, euro } from "@/lib/labels";
 import { formatIt } from "@/lib/campaigns/generate";
+import { MARCHI, getMarchio } from "@/lib/brands/catalog";
 
 const ESEMPI = [
   "Generare richieste di prova in mare per barche a vela usate",
@@ -19,10 +20,10 @@ const ESEMPI = [
 
 const DURATE = [30, 45, 60, 90, 120];
 
-type Form = { obiettivo: string; reparto: string; dataInizio: string; durataGiorni: string; budget: string; leadTarget: string; dettagli: string };
+type Form = { obiettivo: string; reparto: string; marchio: string; dataInizio: string; durataGiorni: string; budget: string; leadTarget: string; dettagli: string };
 
-export function Wizard({ defaultStart }: { defaultStart: string }) {
-  const [f, setF] = useState<Form>({ obiettivo: "", reparto: "AUTO", dataInizio: defaultStart, durataGiorni: "60", budget: "", leadTarget: "", dettagli: "" });
+export function Wizard({ defaultStart, defaultMarchio = "" }: { defaultStart: string; defaultMarchio?: string }) {
+  const [f, setF] = useState<Form>({ obiettivo: "", reparto: "AUTO", marchio: defaultMarchio, dataInizio: defaultStart, durataGiorni: "60", budget: "", leadTarget: "", dettagli: "" });
   const [res, setRes] = useState<GenerateState | null>(null);
   const [nome, setNome] = useState("");
   const [errSalva, setErrSalva] = useState<string | null>(null);
@@ -49,7 +50,7 @@ export function Wizard({ defaultStart }: { defaultStart: string }) {
     setErrSalva(null);
     startSave(async () => {
       const c = piano.campaign;
-      const r = await salvaBozza({ name: nome, objective: c.objective, reparto: c.reparto, startDate: c.startDate, endDate: c.endDate, budget: c.budget, leadTarget: c.leadTarget, utmBase: c.utmBase, plan: c.plan });
+      const r = await salvaBozza({ name: nome, objective: c.objective, reparto: c.reparto, brand: f.marchio || null, startDate: c.startDate, endDate: c.endDate, budget: c.budget, leadTarget: c.leadTarget, utmBase: c.utmBase, plan: c.plan });
       if (r && !r.ok) setErrSalva(r.errore);
     });
   }
@@ -65,6 +66,7 @@ export function Wizard({ defaultStart }: { defaultStart: string }) {
           </label>
           <input id="nome" className="input text-[15px] font-semibold" value={nome} onChange={(e) => setNome(e.target.value)} maxLength={120} />
           <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-ink-soft">
+            {getMarchio(f.marchio) && <Badge tone="gold">Marchio: {getMarchio(f.marchio)?.nome}</Badge>}
             <Badge tone={REPARTO_UI[c.reparto].tone}>Lead a Nautilus EVO: {REPARTO_UI[c.reparto].label}</Badge>
             <span className="num">
               {formatIt(c.startDate)} → {formatIt(c.endDate)}
@@ -189,6 +191,19 @@ export function Wizard({ defaultStart }: { defaultStart: string }) {
             <option value="VENDITA">Lead Vendita</option>
             <option value="SERVICE">Lead Service</option>
             <option value="NOLEGGIO">Noleggio (nei Lead Vendita)</option>
+          </select>
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="marchio" className="label">
+            Marchio <span className="font-normal text-ink-faint">facoltativo: per una campagna su un solo marchio</span>
+          </label>
+          <select id="marchio" className="input" value={f.marchio} onChange={set("marchio")}>
+            <option value="">Nessun marchio specifico</option>
+            {MARCHI.map((m) => (
+              <option key={m.slug} value={m.slug}>
+                {m.nome}
+              </option>
+            ))}
           </select>
         </div>
         <div className="sm:col-span-2">
