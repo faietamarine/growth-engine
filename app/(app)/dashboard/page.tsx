@@ -1,3 +1,4 @@
+import { LogoMarchio } from "@/components/brand/logo-marchio";
 import Link from "next/link";
 import { Megaphone, Users, Send, ListChecks, Plus, ArrowRight, CalendarClock, CircleAlert } from "lucide-react";
 import { getDashboard } from "@/features/dashboard/queries";
@@ -54,8 +55,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           {marchi.map(({ marchio: m, campagneAttive, campagneTotali, leadMese }) => (
             <Link key={m.slug} href={`/marchi/${m.slug}`} className="card flex flex-col gap-3 p-4 transition hover:border-navy/40">
               <span className="flex h-16 items-center justify-center rounded-md bg-white p-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={m.logo} alt={m.nome} className="max-h-full max-w-full object-contain" />
+                <LogoMarchio m={m} className="max-h-full max-w-full object-contain" />
               </span>
               <span className="text-[13px] font-semibold">{m.nome}</span>
               <span className="text-[12.5px] text-ink-soft">

@@ -41,7 +41,7 @@ export function MezzoFields({ m }: { m?: Partial<Vehicle> }) {
           </option>
           {CONDIZIONI.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.titolo}
+              {c.id === "DA_ORDINARE" ? "Catalogo del marchio (modello da ordinare)" : c.titolo}
             </option>
           ))}
         </select>

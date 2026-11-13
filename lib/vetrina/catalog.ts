@@ -7,7 +7,6 @@ export const CATEGORIE = [
   { id: "GOMMONE", nome: "Gommoni" },
   { id: "OPEN", nome: "Open" },
   { id: "CABINATO", nome: "Cabinati" },
-  { id: "VELA", nome: "Barche a vela" },
   { id: "MOTO_ACQUA", nome: "Moto d'acqua" },
   { id: "FUORIBORDO", nome: "Fuoribordo" },
 ] as const;
@@ -17,9 +16,11 @@ export const nomeCategoria = (id: string) => CATEGORIE.find((c) => c.id === id)?
 
 export const CONDIZIONI = [
   { id: "PRONTA_CONSEGNA", nome: "Pronta consegna", slug: "pronte-consegne", titolo: "Pronte consegne", sotto: "Disponibili subito, in piazzale a Pescara." },
-  { id: "DA_ORDINARE", nome: "Da ordinare", slug: "catalogo", titolo: "Catalogo da ordinare", sotto: "Modelli nuovi che puoi configurare e ordinare." },
+  { id: "DA_ORDINARE", nome: "A catalogo", slug: "catalogo", titolo: "Modelli a catalogo", sotto: "Modelli nuovi che puoi configurare e ordinare." },
   { id: "USATO", nome: "Usato", slug: "usato", titolo: "Vetrina dell'usato", sotto: "Usato selezionato e controllato dai nostri tecnici." },
 ] as const;
+/** Sezioni mostrate come tali sul sito: i modelli a catalogo vivono dentro la pagina di ogni marchio. */
+export const SEZIONI_SITO = CONDIZIONI.filter((c) => c.id !== "DA_ORDINARE");
 export type CondizioneId = (typeof CONDIZIONI)[number]["id"];
 export const CONDIZIONE_IDS = CONDIZIONI.map((c) => c.id) as [CondizioneId, ...CondizioneId[]];
 export const condizioneDaSlug = (slug?: string | null) => CONDIZIONI.find((c) => c.slug === slug || c.id === slug);

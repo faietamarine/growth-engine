@@ -7,7 +7,7 @@ import { getSiteSettings } from "@/features/settings/service";
 import { getVetrinaSettings, promoInCorso } from "@/features/vetrina/service";
 import { PopupPromo } from "@/components/vetrina/popup-promo";
 import { etichettaCta } from "@/lib/vetrina/promo";
-import { CONDIZIONI } from "@/lib/vetrina/catalog";
+import { SEZIONI_SITO } from "@/lib/vetrina/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +33,7 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
             <img src="/brand/faieta-marine.png" alt="Faieta Marine" width={88} height={44} />
           </Link>
           <nav className="vt-nav" aria-label="Sezioni del sito">
-            {CONDIZIONI.map((c) => (
+            {SEZIONI_SITO.map((c) => (
               <Link key={c.id} href={`/vetrina/mezzi?condizione=${c.slug}`}>
                 {c.titolo}
               </Link>
@@ -74,7 +74,7 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
             <div>
               <h4>Il sito</h4>
               <ul>
-                {CONDIZIONI.map((c) => (
+                {SEZIONI_SITO.map((c) => (
                   <li key={c.id}>
                     <Link href={`/vetrina/mezzi?condizione=${c.slug}`}>{c.titolo}</Link>
                   </li>

@@ -11,7 +11,7 @@ export const DOMANDE: { id: "uso" | "persone" | "quando"; titolo: string; opzion
     opzioni: [
       { v: "Diporto nel weekend", cat: ["OPEN", "GOMMONE"] },
       { v: "Pesca", cat: ["CABINATO", "OPEN"] },
-      { v: "Crociera", cat: ["VELA", "CABINATO"] },
+      { v: "Crociera", cat: ["CABINATO", "OPEN"] },
       { v: "Sport e velocità", cat: ["MOTO_ACQUA", "GOMMONE", "OPEN"] },
     ],
   },
@@ -21,7 +21,7 @@ export const DOMANDE: { id: "uso" | "persone" | "quando"; titolo: string; opzion
     opzioni: [
       { v: "Solo io o in due", cat: ["MOTO_ACQUA", "GOMMONE", "OPEN"] },
       { v: "Da tre a cinque", cat: ["OPEN", "GOMMONE", "CABINATO"] },
-      { v: "Più di cinque", cat: ["CABINATO", "VELA", "GOMMONE"] },
+      { v: "Più di cinque", cat: ["CABINATO", "GOMMONE", "OPEN"] },
     ],
   },
   {

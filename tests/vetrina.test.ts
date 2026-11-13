@@ -34,9 +34,20 @@ test("prezzo e dati vitali", () => {
   assert.deepEqual(datiVitali({ anno: 2020, lunghezza: 7.5, motore: "", ore: 0, posti: null }).map((d) => d.k), ["Anno", "Lunghezza", "Ore motore"]);
 });
 
+test("categorie: niente barche a vela, e le macro aree dei marchi puntano a categorie esistenti", async () => {
+  const { CATEGORIE } = await import("@/lib/vetrina/catalog");
+  const { MARCHI } = await import("@/lib/brands/catalog");
+  const ids = CATEGORIE.map((c) => c.id as string);
+  assert.ok(!ids.includes("VELA"));
+  for (const m of MARCHI) for (const a of m.aree ?? []) for (const c of a.categorie) assert.ok(ids.includes(c), `${m.slug}/${a.id}: ${c}`);
+  assert.deepEqual(MARCHI.find((m) => m.slug === "capelli")!.aree!.map((a) => a.id), ["barche", "gommoni"]);
+  assert.deepEqual(MARCHI.find((m) => m.slug === "yamaha")!.aree!.map((a) => a.id), ["fuoribordo", "moto-d-acqua"]);
+});
+
 test("quiz: il profilo premia le categorie giuste e le tempistiche del punteggio lead", () => {
   const p = profiloQuiz({ uso: "Crociera", persone: "Più di cinque", quando: "Subito, pronta consegna" });
-  assert.ok(p.categorie.includes("CABINATO") && p.categorie.includes("VELA"));
+  assert.equal(p.categorie[0], "CABINATO");
+  assert.ok(!(p.categorie as string[]).includes("VELA"));
   assert.equal(p.tempistica, "Entro 3 mesi");
   assert.deepEqual(p.condizioni, ["PRONTA_CONSEGNA", "USATO"]);
   // Ogni tempistica del quiz deve essere una voce che il punteggio dei lead conosce.

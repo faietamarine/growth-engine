@@ -35,7 +35,7 @@
 .vt-hero{position:relative;color:#fff;overflow:hidden;background:linear-gradient(160deg,#0A4FBF 0%,#062B5F 55%,#041B3D 100%);isolation:isolate}
 .vt-hero-foto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
 .vt-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(4,27,61,.55) 0%,rgba(4,27,61,.25) 45%,rgba(4,27,61,.78) 100%)}
-.vt-hero-inner{padding:56px 0 150px}
+.vt-hero-inner{padding-block:44px 150px}
 .vt-hero h1{font-size:clamp(32px,6vw,58px);font-weight:800;max-width:15ch;letter-spacing:-.02em}
 .vt-hero p.vt-sotto{font-size:clamp(16px,2.4vw,20px);color:#DCE8FA;max-width:48ch;margin:16px 0 0}
 .vt-onde{position:absolute;left:0;right:0;bottom:0;height:80px;z-index:0;pointer-events:none}
@@ -64,14 +64,7 @@
 /* icone categoria */
 .vt-cat{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:34px}
 @media(min-width:620px){.vt-cat{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:960px){.vt-cat{grid-template-columns:repeat(6,1fr)}}
-.vt-cat a{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 10px 16px;border-radius:18px;text-decoration:none;background:#fff;border:2px solid var(--linea);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;overflow:hidden}
-.vt-cat a::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,var(--blu-chiaro),transparent 70%);opacity:.9}
-.vt-cat a:hover{transform:translateY(-5px);border-color:var(--blu);box-shadow:0 14px 28px rgba(11,94,215,.18)}
-.vt-cat svg{position:relative;width:100%;max-width:120px;height:auto;transition:transform .35s ease}
-.vt-cat a:hover svg{transform:scale(1.07) translateY(-2px)}
-.vt-cat b{position:relative;font-family:Sora,Inter,sans-serif;font-size:15px;color:var(--blu-scuro)}
-.vt-cat small{position:relative;color:var(--muted);font-size:12.5px;margin-top:-4px}
+@media(min-width:960px){.vt-cat{grid-template-columns:repeat(5,1fr)}}
 
 /* card mezzi */
 .vt-griglia{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr))}
@@ -206,3 +199,31 @@
 .vt-promo .vt-btn{min-height:44px;font-size:15px;margin-top:4px}
 .vt-promo-x{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:0;background:var(--sfondo);color:var(--blu-scuro);cursor:pointer;display:flex;align-items:center;justify-content:center}
 .vt-promo-x:hover{background:var(--blu-chiaro)}
+
+/* dealer ufficiale nel banner */
+.vt-dealer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:28px;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.1);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);width:fit-content;max-width:100%}
+.vt-dealer-label{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--giallo);white-space:nowrap}
+.vt-dealer-logo{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.vt-dealer-chip{display:flex;align-items:center;justify-content:center;height:42px;padding:0 12px;background:#fff;border-radius:10px;transition:transform .2s ease,box-shadow .2s ease}
+.vt-dealer-chip:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.25)}
+
+/* riquadri categoria con foto */
+.vt-cat-t{position:relative;display:block;aspect-ratio:4/3;border-radius:18px;overflow:hidden;text-decoration:none;background:linear-gradient(160deg,#0B5ED7,#062B5F);color:#fff;transition:transform .25s ease,box-shadow .25s ease}
+.vt-cat-t:hover{transform:translateY(-5px);box-shadow:0 16px 30px rgba(6,43,95,.3)}
+.vt-cat-t>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.vt-cat-t:hover>img{transform:scale(1.07)}
+.vt-cat-t>svg{position:absolute;left:50%;top:36%;width:78%;transform:translate(-50%,-50%);height:auto}
+.vt-cat-t::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(4,27,61,.82) 100%)}
+.vt-cat-testo{position:absolute;left:14px;right:14px;bottom:12px;z-index:1;display:flex;flex-direction:column}
+.vt-cat-testo b{font-family:Sora,Inter,sans-serif;font-size:17px}
+.vt-cat-testo small{color:#CFE0FA;font-size:12.5px}
+
+/* aree di un marchio (es. Capelli: barche e gommoni) */
+.vt-aree{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px;margin:22px 0 4px}
+.vt-area{position:relative;display:block;aspect-ratio:16/9;border-radius:20px;overflow:hidden;text-decoration:none;color:#fff;background:linear-gradient(160deg,#0B5ED7,#062B5F);border:3px solid transparent;transition:transform .25s ease,box-shadow .25s ease}
+.vt-area:hover{transform:translateY(-4px);box-shadow:0 16px 30px rgba(6,43,95,.28)}
+.vt-area[aria-current=true]{border-color:var(--giallo)}
+.vt-area>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.vt-area>svg{position:absolute;left:50%;top:44%;width:56%;transform:translate(-50%,-50%);height:auto}
+.vt-area::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(4,27,61,.85) 100%)}
+.vt-area span{position:absolute;left:18px;bottom:14px;z-index:1;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:22px}

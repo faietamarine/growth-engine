@@ -40,7 +40,7 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
   return (
     <main className="vt-wrap" style={{ paddingTop: 20 }}>
       <p className="vt-briciole" style={{ color: "var(--muted)" }}>
-        <Link href="/vetrina">Home</Link> › <Link href={`/vetrina/mezzi?condizione=${cond?.slug ?? ""}`}>{cond?.titolo}</Link> › {nome}
+        <Link href="/vetrina">Home</Link> › {m.condizione === "DA_ORDINARE" ? <Link href={`/vetrina/marchi/${m.marca}`}>Catalogo {marca?.nome}</Link> : <Link href={`/vetrina/mezzi?condizione=${cond?.slug ?? ""}`}>{cond?.titolo}</Link>} › {nome}
       </p>
       <div className="vt-scheda">
         <div>

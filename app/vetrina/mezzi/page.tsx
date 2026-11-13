@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { mezziPubblici } from "@/features/vetrina/service";
 import { MARCHI } from "@/lib/brands/catalog";
-import { CATEGORIE, CATEGORIA_IDS, CONDIZIONI, condizioneDaSlug, nomeCategoria } from "@/lib/vetrina/catalog";
+import { CATEGORIE, CATEGORIA_IDS, SEZIONI_SITO, condizioneDaSlug, nomeCategoria } from "@/lib/vetrina/catalog";
 import { CardMezzo } from "@/components/vetrina/card-mezzo";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export default async function ElencoMezzi({ searchParams }: { searchParams: Prom
             <Link href={href({ condizione: undefined })} className="vt-chip" aria-current={!cond}>
               Tutto
             </Link>
-            {CONDIZIONI.map((c) => (
+            {SEZIONI_SITO.map((c) => (
               <Link key={c.id} href={href({ condizione: c.slug })} className="vt-chip" aria-current={cond?.id === c.id}>
                 {c.nome}
               </Link>

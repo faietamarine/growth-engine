@@ -3,7 +3,8 @@ import { Search } from "lucide-react";
 import { getVetrinaSettings, mezziPubblici } from "@/features/vetrina/service";
 import { getSiteSettings } from "@/features/settings/service";
 import { MARCHI } from "@/lib/brands/catalog";
-import { CATEGORIE, CONDIZIONI } from "@/lib/vetrina/catalog";
+import { CATEGORIE, SEZIONI_SITO } from "@/lib/vetrina/catalog";
+import { LogoMarchio } from "@/components/brand/logo-marchio";
 import { IconaCategoria } from "@/components/vetrina/icone";
 import { CardMezzo } from "@/components/vetrina/card-mezzo";
 import { FormAppuntamento } from "@/components/vetrina/form-appuntamento";
@@ -16,6 +17,38 @@ export default async function VetrinaHome() {
   const [v, s, tutti] = await Promise.all([getVetrinaSettings(), getSiteSettings(), mezziPubblici()]);
   const per = (id: string) => tutti.filter((m) => m.condizione === id);
   const conteggio = (cat: string) => tutti.filter((m) => m.categoria === cat && m.stato === "PUBBLICATO").length;
+  const fotoCategoria = (cat: string) => tutti.find((m) => m.categoria === cat && m.stato === "PUBBLICATO" && m.foto[0])?.foto[0];
+
+  const sezione = (c: (typeof SEZIONI_SITO)[number]) => {
+    const lista = per(c.id);
+    return (
+      <section key={c.id} className="vt-sez" id={c.slug}>
+        <div className="vt-sez-testa">
+          <div>
+            <h2>{c.titolo}</h2>
+            <p className="vt-sub">{c.sotto}</p>
+          </div>
+          {lista.length > 0 && (
+            <Link href={`/vetrina/mezzi?condizione=${c.slug}`} className="vt-tutti">
+              Vedi tutti →
+            </Link>
+          )}
+        </div>
+        {lista.length ? (
+          <div className="vt-griglia">
+            {lista.slice(0, 3).map((m) => (
+              <CardMezzo key={m.id} m={m} />
+            ))}
+          </div>
+        ) : (
+          <div className="vt-vuoto">
+            <b>Nuovi arrivi in preparazione</b>
+            Stiamo aggiornando questa sezione. Intanto chiamaci al {v.telefono}: ti diciamo subito cosa abbiamo.
+          </div>
+        )}
+      </section>
+    );
+  };
 
   return (
     <main>
@@ -25,6 +58,18 @@ export default async function VetrinaHome() {
           <img src={`/media/${v.bannerId}`} alt="" className="vt-hero-foto" fetchPriority="high" />
         )}
         <div className="vt-wrap vt-hero-inner">
+          <div className="vt-dealer vt-reveal" aria-label="Dealer ufficiale dei marchi">
+            <span className="vt-dealer-label">Dealer ufficiale</span>
+            <ul className="vt-dealer-logo">
+              {MARCHI.map((m) => (
+                <li key={m.slug}>
+                  <Link href={`/vetrina/marchi/${m.slug}`} className="vt-dealer-chip" aria-label={`Catalogo ${m.nome}`}>
+                    <LogoMarchio m={m} style={{ height: 26, width: "auto", maxWidth: 110, objectFit: "contain", display: "block", fontSize: 11 }} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
           <h1 className="vt-reveal">La tua prossima barca, qui a Pescara.</h1>
           <p className="vt-sotto vt-reveal" style={{ animationDelay: ".1s" }}>
             Pronte consegne, modelli da ordinare e usato selezionato. Vieni a vederla: prenota la tua visita.
@@ -53,7 +98,7 @@ export default async function VetrinaHome() {
             <span>Dove cerchi</span>
             <select name="condizione" defaultValue="">
               <option value="">Tutto il sito</option>
-              {CONDIZIONI.map((c) => (
+              {SEZIONI_SITO.map((c) => (
                 <option key={c.id} value={c.slug}>
                   {c.titolo}
                 </option>
@@ -90,64 +135,45 @@ export default async function VetrinaHome() {
 
       <div className="vt-wrap">
         <nav className="vt-cat" aria-label="Cosa stai cercando">
-          {CATEGORIE.map((c) => (
-            <Link key={c.id} href={`/vetrina/mezzi?categoria=${c.id}`}>
-              <IconaCategoria id={c.id} />
-              <b>{c.nome}</b>
-              <small>{conteggio(c.id) ? (conteggio(c.id) === 1 ? "1 disponibile" : `${conteggio(c.id)} disponibili`) : "Chiedi a noi"}</small>
-            </Link>
-          ))}
+          {CATEGORIE.map((c) => {
+            const foto = fotoCategoria(c.id);
+            const n = conteggio(c.id);
+            return (
+              <Link key={c.id} href={`/vetrina/mezzi?categoria=${c.id}`} className="vt-cat-t">
+                {foto ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`/media/${foto}`} alt="" loading="lazy" />
+                ) : (
+                  <IconaCategoria id={c.id} />
+                )}
+                <span className="vt-cat-testo">
+                  <b>{c.nome}</b>
+                  <small>{n ? (n === 1 ? "1 disponibile" : `${n} disponibili`) : "Chiedi a noi"}</small>
+                </span>
+              </Link>
+            );
+          })}
         </nav>
 
-        {CONDIZIONI.map((c) => {
-          const lista = per(c.id);
-          return (
-            <section key={c.id} className="vt-sez" id={c.slug}>
-              <div className="vt-sez-testa">
-                <div>
-                  <h2>{c.titolo}</h2>
-                  <p className="vt-sub">{c.sotto}</p>
-                </div>
-                {lista.length > 0 && (
-                  <Link href={`/vetrina/mezzi?condizione=${c.slug}`} className="vt-tutti">
-                    Vedi tutti →
-                  </Link>
-                )}
-              </div>
-              {lista.length ? (
-                <div className="vt-griglia">
-                  {lista.slice(0, 3).map((m) => (
-                    <CardMezzo key={m.id} m={m} />
-                  ))}
-                </div>
-              ) : (
-                <div className="vt-vuoto">
-                  <b>Nuovi arrivi in preparazione</b>
-                  Stiamo aggiornando questa sezione. Intanto chiamaci al {v.telefono}: ti diciamo subito cosa abbiamo.
-                </div>
-              )}
-              {c.id === "PRONTA_CONSEGNA" && (
-                <section className="vt-sez" id="marchi" style={{ paddingTop: 52 }}>
-                  <div className="vt-sez-testa">
-                    <div>
-                      <h2>I nostri marchi</h2>
-                      <p className="vt-sub">Tocca un marchio per vedere i suoi modelli.</p>
-                    </div>
-                  </div>
-                  <div className="vt-marchi">
-                    {MARCHI.map((m) => (
-                      <Link key={m.slug} href={`/vetrina/marchi/${m.slug}`} className="vt-marchio" aria-label={`Modelli ${m.nome}`}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={m.logo} alt={m.nome} loading="lazy" />
-                        {m.nota && <small>{m.nota}</small>}
-                      </Link>
-                    ))}
-                  </div>
-                </section>
-              )}
-            </section>
-          );
-        })}
+        {SEZIONI_SITO.filter((c) => c.id === "PRONTA_CONSEGNA").map((c) => sezione(c))}
+
+        <section className="vt-sez" id="marchi">
+          <div className="vt-sez-testa">
+            <div>
+              <h2>I nostri marchi</h2>
+              <p className="vt-sub">Dealer ufficiale. Tocca un marchio: modelli a catalogo, pronte consegne e usato.</p>
+            </div>
+          </div>
+          <div className="vt-marchi">
+            {MARCHI.map((m) => (
+              <Link key={m.slug} href={`/vetrina/marchi/${m.slug}`} className="vt-marchio" aria-label={`Catalogo ${m.nome}`}>
+                <LogoMarchio m={m} style={{ maxHeight: 50, width: "auto", maxWidth: "100%", objectFit: "contain" }} />
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {SEZIONI_SITO.filter((c) => c.id === "USATO").map((c) => sezione(c))}
 
         <section className="vt-banda" aria-labelledby="t-quiz">
           <div>

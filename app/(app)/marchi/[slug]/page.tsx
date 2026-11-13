@@ -1,3 +1,4 @@
+import { LogoMarchio } from "@/components/brand/logo-marchio";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Plus, ArrowRight } from "lucide-react";
@@ -25,7 +26,7 @@ export default async function MarchioPage({ params }: { params: Promise<{ slug: 
     <>
       <PageHeader
         title={m.nome}
-        subtitle={m.nota ?? "Campagne e lead dedicati a questo marchio"}
+        subtitle="Campagne e lead dedicati a questo marchio"
         action={
           can(user.role, "campagne:scrivi") ? (
             <Link href={`/campagne/nuova?marchio=${m.slug}`} className="btn-primary">
@@ -36,8 +37,7 @@ export default async function MarchioPage({ params }: { params: Promise<{ slug: 
       />
 
       <div className="card mb-4 flex items-center justify-center bg-white p-6">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={m.logo} alt={`Logo ${m.nome}`} className="max-h-24 max-w-full object-contain" />
+        <LogoMarchio m={m} className="max-h-24 max-w-full object-contain" />
       </div>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Riepilogo del marchio">
