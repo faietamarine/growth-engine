@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Flash } from "@/components/ui/flash";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { statoMezzoAction } from "./actions";
+import { caricaCatalogoAction, statoMezzoAction } from "./actions";
 
 export const metadata = { title: "Vetrina mezzi" };
 export const dynamic = "force-dynamic";
@@ -34,6 +34,11 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
             </Link>
             {scrivi && (
               <>
+                <form action={caricaCatalogoAction}>
+                  <SubmitButton className="btn-ghost" confirm="Carico i modelli a catalogo di tutti i marchi (quelli già presenti non vengono toccati). Procedo?">
+                    <Ship size={16} /> Carica modelli a catalogo
+                  </SubmitButton>
+                </form>
                 <Link href="/mezzi/avvisi" className="btn-ghost">
                   <Megaphone size={16} /> Avvisi e promo
                 </Link>

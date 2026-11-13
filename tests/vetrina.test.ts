@@ -26,6 +26,22 @@ test("mezzo: l'usato vuole l'anno, online vuole almeno una foto", () => {
   assert.match(controllaMezzo(mezzoSchema.parse({ ...base, stato: "PUBBLICATO" }))!, /foto/);
   assert.equal(controllaMezzo(mezzoSchema.parse({ ...base, stato: "PUBBLICATO", foto: JSON.stringify([FOTO]) })), null);
   assert.equal(controllaMezzo(mezzoSchema.parse({ ...base, condizione: "USATO", anno: "2019" })), null);
+  // i modelli a catalogo possono andare online senza foto
+  assert.equal(controllaMezzo(mezzoSchema.parse({ ...base, condizione: "DA_ORDINARE", stato: "PUBBLICATO" })), null);
+});
+
+test("catalogo modelli: categorie coerenti con le aree dei marchi, niente doppioni", async () => {
+  const { MODELLI_CATALOGO } = await import("../lib/brands/modelli");
+  const { MARCHI } = await import("../lib/brands/catalog");
+  const viste = new Set<string>();
+  for (const x of MODELLI_CATALOGO) {
+    const marchio = MARCHI.find((mm) => mm.slug === x.marca);
+    assert.ok(marchio, `marchio sconosciuto: ${x.marca}`);
+    if (marchio.aree) assert.ok(marchio.aree.some((a) => a.categorie.includes(x.categoria)), `${x.marca} ${x.modello}: categoria fuori dalle aree`);
+    const k = `${x.marca}|${x.modello.toLowerCase()}`;
+    assert.ok(!viste.has(k), `doppione: ${k}`);
+    viste.add(k);
+  }
 });
 
 test("prezzo e dati vitali", () => {

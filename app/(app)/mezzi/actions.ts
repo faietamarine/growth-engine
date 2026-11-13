@@ -6,7 +6,7 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { FormState } from "@/components/ui/action-form";
 import { controllaMezzo, mezzoSchema, STATI_MEZZO } from "@/lib/vetrina/catalog";
-import { aggiornaMezzo, cambiaStatoMezzo, creaMezzo, eliminaMezzo, saveVetrinaSettings } from "@/features/vetrina/service";
+import { aggiornaMezzo, cambiaStatoMezzo, caricaCatalogo, creaMezzo, eliminaMezzo, saveVetrinaSettings } from "@/features/vetrina/service";
 
 const uuid = z.string().uuid();
 const vai = (id: string, k: "msg" | "errore", m: string) => `/mezzi/${id}?${k}=${encodeURIComponent(m)}`;
@@ -120,4 +120,11 @@ export async function eliminaPromoAction(form: FormData) {
   revalidatePath("/mezzi/avvisi");
   revalidatePath("/vetrina", "layout");
   redirect("/mezzi/avvisi");
+}
+
+export async function caricaCatalogoAction() {
+  const user = await requireUser("contenuti:scrivi");
+  const n = await caricaCatalogo(user);
+  rinfresca();
+  redirect(`/mezzi?msg=${encodeURIComponent(n ? `Caricati ${n} modelli a catalogo dei marchi.` : "Il catalogo è già completo: nessun modello nuovo.")}`);
 }

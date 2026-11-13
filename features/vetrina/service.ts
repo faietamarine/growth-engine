@@ -3,6 +3,7 @@ import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { db } from "@/db/client";
 import { media, promos, settings, vehicles, type Vehicle, type User } from "@/db/schema";
 import { audit } from "@/lib/audit";
+import { MODELLI_CATALOGO } from "@/lib/brands/modelli";
 import type { MezzoInput } from "@/lib/vetrina/catalog";
 import { inCorso, oggiRoma, type PromoInput } from "@/lib/vetrina/promo";
 
@@ -92,9 +93,22 @@ export async function eliminaMezzo(id: string, user: User) {
 export async function cambiaStatoMezzo(id: string, stato: "BOZZA" | "PUBBLICATO" | "VENDUTO", user: User) {
   const m = await getMezzo(id);
   if (!m) throw new Error("Mezzo non trovato.");
-  if (stato === "PUBBLICATO" && m.foto.length === 0) throw new Error("Per pubblicare serve almeno una foto.");
+  if (stato === "PUBBLICATO" && m.condizione !== "DA_ORDINARE" && m.foto.length === 0) throw new Error("Per pubblicare serve almeno una foto.");
   await db.update(vehicles).set({ stato }).where(eq(vehicles.id, id));
   await audit(user, "vetrina", "vehicle", id, `stato ${stato}`);
+}
+
+/** Carica i modelli a catalogo dei marchi (solo quelli non ancora presenti). */
+export async function caricaCatalogo(user: User) {
+  const esistenti = await db.select({ marca: vehicles.marca, modello: vehicles.modello }).from(vehicles).where(eq(vehicles.condizione, "DA_ORDINARE"));
+  const chiave = (a: string, b: string) => `${a}|${b.toLowerCase()}`;
+  const gia = new Set(esistenti.map((e) => chiave(e.marca, e.modello)));
+  const nuovi = MODELLI_CATALOGO.filter((x) => !gia.has(chiave(x.marca, x.modello)));
+  for (let i = 0; i < nuovi.length; i += 50) {
+    await db.insert(vehicles).values(nuovi.slice(i, i + 50).map((x) => ({ marca: x.marca, modello: x.modello, categoria: x.categoria, condizione: "DA_ORDINARE" as const, stato: "PUBBLICATO" as const, lunghezza: x.lunghezza ?? null, dotazioni: [], foto: [] })));
+  }
+  await audit(user, "vetrina", "vehicle", "catalogo", `caricati ${nuovi.length} modelli a catalogo`);
+  return nuovi.length;
 }
 
 export async function getMezzo(id: string): Promise<Vehicle | undefined> {

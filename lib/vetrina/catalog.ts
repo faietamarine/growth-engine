@@ -73,10 +73,10 @@ export const mezzoSchema = z.object({
 });
 export type MezzoInput = z.infer<typeof mezzoSchema>;
 
-/** Regole di coerenza: l'usato ha l'anno; nulla va online senza almeno una foto. */
+/** Regole di coerenza: l'usato ha l'anno; nulla va online senza almeno una foto (tranne i modelli a catalogo). */
 export function controllaMezzo(d: MezzoInput): string | null {
   if (d.condizione === "USATO" && !d.anno) return "Per l'usato indica l'anno.";
-  if (d.stato === "PUBBLICATO" && d.foto.length === 0) return "Per pubblicare serve almeno una foto.";
+  if (d.stato === "PUBBLICATO" && d.condizione !== "DA_ORDINARE" && d.foto.length === 0) return "Per pubblicare serve almeno una foto.";
   return null;
 }
 
