@@ -5,7 +5,7 @@
 - [x] 3 "Avvisami se arriva"
 - [x] 4 Mezzo nella scheda del lead
 - [x] 5 Confronto 2-3 mezzi e preferiti
-- [ ] 6 Brochure PDF lead magnet
+- [x] 6 Brochure PDF lead magnet
 - [ ] 7 "Valuta la tua barca" (permuta)
 - [ ] 8 Pagina servizi + preventivo
 - [ ] 9 Recensioni / galleria consegne

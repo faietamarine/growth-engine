@@ -69,6 +69,7 @@ export const mezzoSchema = z.object({
   descrizione: z.string().trim().max(4000).default(""),
   dotazioni: elenco,
   foto: listaFoto,
+  brochure: z.union([z.literal(""), z.string().uuid()]).default(""),
   inEvidenza: z.preprocess((v) => v === "on" || v === "true" || v === true, z.boolean()),
 });
 export type MezzoInput = z.infer<typeof mezzoSchema>;

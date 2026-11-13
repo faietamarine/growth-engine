@@ -319,6 +319,7 @@ export const vehicles = sqliteTable(
     descrizione: text("descrizione").notNull().default(""),
     dotazioni: text("dotazioni", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
     foto: text("foto", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`), // id in media, la prima è la copertina
+    brochure: text("brochure").notNull().default(""), // id in media del PDF della brochure (lead magnet)
     inEvidenza: integer("in_evidenza", { mode: "boolean" }).notNull().default(false),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

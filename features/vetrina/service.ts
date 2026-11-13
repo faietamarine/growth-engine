@@ -46,8 +46,8 @@ export async function leggiFoto(id: string) {
 /** Elimina dal database le foto non più usate da nessun mezzo (né dal banner). */
 async function pulisciFoto(candidati: string[]) {
   if (!candidati.length) return;
-  const [tutti, s] = await Promise.all([db.select({ foto: vehicles.foto }).from(vehicles), getVetrinaSettings()]);
-  const usate = new Set([...tutti.flatMap((v) => v.foto), s.bannerId, ...Object.values(s.icone ?? {})]);
+  const [tutti, s] = await Promise.all([db.select({ foto: vehicles.foto, brochure: vehicles.brochure }).from(vehicles), getVetrinaSettings()]);
+  const usate = new Set([...tutti.flatMap((v) => [...v.foto, v.brochure]), s.bannerId, ...Object.values(s.icone ?? {})]);
   const orfane = candidati.filter((id) => !usate.has(id));
   if (orfane.length) await db.delete(media).where(inArray(media.id, orfane));
 }
@@ -68,6 +68,7 @@ const valori = (d: MezzoInput) => ({
   descrizione: d.descrizione,
   dotazioni: d.dotazioni,
   foto: d.foto,
+  brochure: d.brochure,
   inEvidenza: d.inEvidenza,
 });
 
@@ -81,7 +82,7 @@ export async function aggiornaMezzo(id: string, d: MezzoInput, user: User) {
   const prima = await getMezzo(id);
   if (!prima) throw new Error("Mezzo non trovato.");
   await db.update(vehicles).set(valori(d)).where(eq(vehicles.id, id));
-  await pulisciFoto(prima.foto.filter((f) => !d.foto.includes(f)));
+  await pulisciFoto([...prima.foto.filter((f) => !d.foto.includes(f)), ...(prima.brochure && prima.brochure !== d.brochure ? [prima.brochure] : [])]);
   await audit(user, "vetrina", "vehicle", id, `aggiornato ${d.marca} ${d.modello}`);
 }
 
@@ -89,7 +90,7 @@ export async function eliminaMezzo(id: string, user: User) {
   const prima = await getMezzo(id);
   if (!prima) return;
   await db.delete(vehicles).where(eq(vehicles.id, id));
-  await pulisciFoto(prima.foto);
+  await pulisciFoto([...prima.foto, ...(prima.brochure ? [prima.brochure] : [])]);
   await audit(user, "vetrina", "vehicle", id, `eliminato ${prima.marca} ${prima.modello}`);
 }
 

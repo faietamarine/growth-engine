@@ -1,6 +1,7 @@
 import { Campo } from "@/components/ui/action-form";
 import { MARCHI } from "@/lib/brands/catalog";
 import { CATEGORIE, CONDIZIONI, MAX_FOTO, STATI_MEZZO, STATO_UI } from "@/lib/vetrina/catalog";
+import { BrochureUploader } from "@/components/vetrina/brochure-uploader";
 import { FotoUploader } from "@/components/vetrina/foto-uploader";
 import type { Vehicle } from "@/db/schema";
 
@@ -77,6 +78,11 @@ export function MezzoFields({ m }: { m?: Partial<Vehicle> }) {
       <div className="sm:col-span-2">
         <span className="label">Foto (la prima è la copertina, fino a {MAX_FOTO})</span>
         <FotoUploader name="foto" iniziali={m?.foto ?? []} max={MAX_FOTO} />
+      </div>
+      <div className="sm:col-span-2">
+        <span className="label">Brochure PDF (facoltativa)</span>
+        <p className="mb-2 text-[12px] text-ink-faint">Sul sito compare "Scarica la brochure": il cliente lascia nome e contatto e riceve il PDF. Così ogni scaricamento diventa un lead. Solo PDF, massimo 5 MB.</p>
+        <BrochureUploader name="brochure" iniziale={m?.brochure ?? ""} />
       </div>
       <Campo id="stato" label="Stato">
         <select id="stato" name="stato" className="input" defaultValue={m?.stato ?? "BOZZA"}>

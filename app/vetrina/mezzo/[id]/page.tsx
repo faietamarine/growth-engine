@@ -8,6 +8,7 @@ import { getMarchio } from "@/lib/brands/catalog";
 import { CONDIZIONI, datiVitali, euro, nomeCategoria } from "@/lib/vetrina/catalog";
 import { Galleria } from "@/components/vetrina/galleria";
 import { AzioniMezzo } from "@/components/vetrina/azioni-mezzo";
+import { FormBrochure } from "@/components/vetrina/form-brochure";
 import { FormAvviso } from "@/components/vetrina/form-avviso";
 import { FormAppuntamento } from "@/components/vetrina/form-appuntamento";
 import { CardMezzo } from "@/components/vetrina/card-mezzo";
@@ -119,6 +120,11 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
               </>
             )}
           </div>
+          {m.brochure && !venduto && (
+            <div className="vt-box" style={{ marginTop: 16 }}>
+              <FormBrochure mezzoId={m.id} etichetta={nome} versioneInformativa={s.versioneInformativa} />
+            </div>
+          )}
         </aside>
       </div>
       {altri.length > 0 && (

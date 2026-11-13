@@ -250,3 +250,4 @@
 .vt-confr th[scope=row]{color:var(--muted);font-weight:700;width:120px;white-space:nowrap}
 .vt-confr img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block}
 .vt-confr .best{color:var(--blu);font-weight:800}
+.vt-ok .vt-btn{margin:0 auto 10px;display:inline-flex}

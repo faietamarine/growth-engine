@@ -15,7 +15,7 @@ export function FormAvviso({ cosa, versioneInformativa, mezzoId, titolo = "Avvis
     const fd = new FormData(e.currentTarget);
     const v = (k: string) => String(fd.get(k) ?? "").trim();
     if (v("nominativo").length < 2) return setErrore("Inserisci nome e cognome.");
-    if (v("telefono").length < 6 && !/.+@.+\..+/.test(v("email"))) return setErrore("Lascia un telefono o un'email per poterti avvisare.");
+    if (v("telefono").length < 6) return setErrore("Lascia un telefono per poterti avvisare.");
     if (fd.get("consensoPrivacy") !== "on") return setErrore("Serve il consenso per poterti ricontattare.");
     const { nome, cognome } = dividiNome(v("nominativo"));
     const risposte: Record<string, string> = { Richiesta: "Avviso quando arriva" };
@@ -60,10 +60,10 @@ export function FormAvviso({ cosa, versioneInformativa, mezzoId, titolo = "Avvis
       </label>
       <label className="vt-c">
         Telefono
-        <input type="tel" name="telefono" autoComplete="tel" inputMode="tel" />
+        <input type="tel" name="telefono" autoComplete="tel" inputMode="tel" required />
       </label>
       <label className="vt-c">
-        Email <span style={{ fontWeight: 500 }}>(se preferisci)</span>
+        Email <span style={{ fontWeight: 500 }}>(facoltativa)</span>
         <input type="email" name="email" autoComplete="email" />
       </label>
       <div className="vt-trappola" aria-hidden>
