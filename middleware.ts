@@ -16,6 +16,8 @@ export async function middleware(req: NextRequest) {
     res.cookies.set(AB_COOKIE, v, { maxAge: 30 * 86400, sameSite: "lax", path: "/l", httpOnly: true, secure: process.env.NODE_ENV === "production" });
     return res;
   }
+  // Indirizzo pulito: la home del dominio (e /home) mostrano la vetrina senza cambiare l'URL.
+  if (pathname === "/" || pathname === "/home") return NextResponse.rewrite(new URL("/vetrina", req.url));
   if (PUBLIC.some((r) => r.test(pathname))) return NextResponse.next();
   const ok = await verifySession(req.cookies.get(SESSION_COOKIE)?.value);
   if (ok) return NextResponse.next();
