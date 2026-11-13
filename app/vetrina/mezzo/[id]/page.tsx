@@ -7,6 +7,7 @@ import { siteUrl } from "@/lib/seo/site";
 import { getMarchio } from "@/lib/brands/catalog";
 import { CONDIZIONI, datiVitali, euro, nomeCategoria } from "@/lib/vetrina/catalog";
 import { Galleria } from "@/components/vetrina/galleria";
+import { FormAvviso } from "@/components/vetrina/form-avviso";
 import { FormAppuntamento } from "@/components/vetrina/form-appuntamento";
 import { CardMezzo } from "@/components/vetrina/card-mezzo";
 
@@ -105,7 +106,10 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
               </dl>
             )}
             {venduto ? (
-              <p style={{ color: "var(--muted)" }}>Questo mezzo è stato venduto. Ne abbiamo altri simili: chiedici.</p>
+              <>
+                <p style={{ color: "var(--muted)" }}>Questo mezzo è stato venduto. Lasciaci un contatto: ti avvisiamo se ne arriva uno simile.</p>
+                <FormAvviso cosa={nome} mezzoId={m.id} versioneInformativa={s.versioneInformativa} />
+              </>
             ) : (
               <>
                 <h2 style={{ fontSize: 18, margin: "6px 0 12px", color: "var(--blu-scuro)" }}>Prenota la tua visita o il tuo appuntamento</h2>

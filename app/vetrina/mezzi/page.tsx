@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getSiteSettings } from "@/features/settings/service";
+import { FormAvviso } from "@/components/vetrina/form-avviso";
 import { mezziPubblici } from "@/features/vetrina/service";
 import { MARCHI } from "@/lib/brands/catalog";
 import { CATEGORIE, CATEGORIA_IDS, SEZIONI_SITO, condizioneDaSlug, nomeCategoria } from "@/lib/vetrina/catalog";
@@ -81,7 +83,10 @@ export default async function ElencoMezzi({ searchParams }: { searchParams: Prom
         ) : (
           <div className="vt-vuoto">
             <b>Nessun mezzo con questi filtri</b>
-            Prova a togliere un filtro, oppure <Link href="/vetrina#appuntamento" style={{ color: "var(--blu)", fontWeight: 700 }}>scrivici cosa cerchi</Link>: ti avvisiamo appena arriva.
+            Prova a togliere un filtro, oppure lasciaci un contatto: ti avvisiamo appena arriva.
+            <div className="vt-box" style={{ maxWidth: 420, margin: "18px auto 0", textAlign: "left" }}>
+              <FormAvviso cosa={titolo} versioneInformativa={(await getSiteSettings()).versioneInformativa} />
+            </div>
           </div>
         )}
       </div>

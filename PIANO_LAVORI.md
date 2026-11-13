@@ -2,7 +2,7 @@
 ## Sito
 - [x] 1 WhatsApp fisso con messaggio per mezzo
 - [x] 2 Anteprime social (Open Graph)
-- [ ] 3 "Avvisami se arriva"
+- [x] 3 "Avvisami se arriva"
 - [ ] 4 Mezzo nella scheda del lead
 - [ ] 5 Confronto 2-3 mezzi e preferiti
 - [ ] 6 Brochure PDF lead magnet
