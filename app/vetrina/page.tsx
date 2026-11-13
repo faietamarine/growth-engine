@@ -185,6 +185,16 @@ export default async function VetrinaHome() {
           </Link>
         </section>
 
+        <section className="vt-banda" aria-labelledby="t-valuta">
+          <div>
+            <h2 id="t-valuta">Hai una barca da cambiare?</h2>
+            <p>Permuta o vendita: descrivi il tuo mezzo e ti facciamo una valutazione senza impegno.</p>
+          </div>
+          <Link href="/vetrina/valuta" className="vt-btn vt-btn-giallo">
+            Valuta la tua barca
+          </Link>
+        </section>
+
         <section id="appuntamento" className="vt-sez" style={{ paddingBottom: 0 }}>
           <div className="vt-box" style={{ maxWidth: 640, margin: "0 auto" }}>
             <h2 style={{ fontSize: 28, color: "var(--blu-scuro)" }}>Prenota la tua visita o il tuo appuntamento</h2>

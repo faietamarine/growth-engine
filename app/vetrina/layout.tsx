@@ -57,6 +57,7 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
             ))}
             <Link href="/vetrina#marchi">I nostri marchi</Link>
             <Link href="/vetrina/quiz">Trova la tua barca</Link>
+            <Link href="/vetrina/valuta">Valuta la tua barca</Link>
           </nav>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <a href={telHref} className="vt-tel">
@@ -98,6 +99,9 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
                 ))}
                 <li>
                   <Link href="/vetrina/quiz">Trova la tua barca</Link>
+                </li>
+                <li>
+                  <Link href="/vetrina/valuta">Valuta la tua barca</Link>
                 </li>
                 <li>
                   <Link href="/l/privacy">Informativa privacy</Link>
