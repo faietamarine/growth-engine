@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
 import "./vetrina.css";
 import { CookieConsent } from "@/components/landing/consent";
 import { getSiteSettings } from "@/features/settings/service";
 import { getVetrinaSettings, promoInCorso } from "@/features/vetrina/service";
+import { WhatsAppFisso } from "@/components/vetrina/whatsapp";
+import { parteIndirizzo, siteUrl } from "@/lib/seo/site";
 import { PopupPromo } from "@/components/vetrina/popup-promo";
 import { etichettaCta } from "@/lib/vetrina/promo";
 import { SEZIONI_SITO } from "@/lib/vetrina/catalog";
@@ -16,14 +17,29 @@ export const metadata: Metadata = {
   description: "Pronte consegne, catalogo da ordinare e usato selezionato. Joker Boat, Jeanneau, Capelli, Yamaha, Invictus, Capoforte. Prenota la tua visita a Pescara.",
   robots: { index: true, follow: true },
   openGraph: { siteName: "Faieta Marine", locale: "it_IT", type: "website", images: ["/brand/faieta-marine.png"] },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function VetrinaLayout({ children }: { children: React.ReactNode }) {
   const [s, v, promo] = await Promise.all([getSiteSettings(), getVetrinaSettings(), promoInCorso()]);
   const tel = v.telefono.replace(/[^\d+]/g, "");
   const telHref = `tel:${tel.startsWith("+") ? tel : `+39${tel}`}`;
+  const azienda = {
+    "@context": "https://schema.org",
+    "@type": "AutoDealer",
+    name: s.ragioneSociale || "Faieta Marine",
+    url: siteUrl(),
+    logo: `${siteUrl()}/brand/faieta-marine.png`,
+    image: `${siteUrl()}/brand/faieta-marine.png`,
+    telephone: telHref.replace("tel:", ""),
+    email: v.email,
+    address: { "@type": "PostalAddress", ...parteIndirizzo(v.indirizzo) },
+    brand: ["Joker Boat", "Jeanneau", "Capelli", "Yamaha", "Invictus", "Capoforte", "Italmar"].map((name) => ({ "@type": "Brand", name })),
+    areaServed: "Abruzzo",
+  };
   return (
     <div className="vt">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(azienda).replace(/</g, "\\u003c") }} />
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
       <header className="vt-head">
@@ -95,9 +111,7 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
         </div>
       </footer>
       {v.whatsapp && (
-        <a className="vt-wa" href={`https://wa.me/${v.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener" aria-label="Scrivici su WhatsApp">
-          <MessageCircle size={30} color="#fff" aria-hidden />
-        </a>
+        <WhatsAppFisso numero={v.whatsapp} />
       )}
       {promo && (
         <PopupPromo

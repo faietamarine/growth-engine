@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getVetrinaSettings, mezzoPubblico, mezziPubblici } from "@/features/vetrina/service";
 import { getSiteSettings } from "@/features/settings/service";
+import { siteUrl } from "@/lib/seo/site";
 import { getMarchio } from "@/lib/brands/catalog";
 import { CONDIZIONI, datiVitali, euro, nomeCategoria } from "@/lib/vetrina/catalog";
 import { Galleria } from "@/components/vetrina/galleria";
@@ -17,10 +18,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const m = UUID.test(id) ? await mezzoPubblico(id) : undefined;
   if (!m) return { title: "Mezzo non trovato" };
   const titolo = `${getMarchio(m.marca)?.nome ?? m.marca} ${m.modello}`;
+  const cond = CONDIZIONI.find((c) => c.id === m.condizione);
+  const descrizione = `${titolo}${m.anno ? ` ${m.anno}` : ""} · ${euro(m.prezzo)}. ${m.descrizione.slice(0, 120) || `${cond?.nome ?? ""} da Faieta Marine a Pescara: prenota la tua visita.`}`.trim();
+  const img = m.foto[0] ? `/media/${m.foto[0]}` : "/brand/faieta-marine.png";
   return {
-    title: titolo,
-    description: `${titolo}${m.anno ? ` ${m.anno}` : ""} · ${euro(m.prezzo)}. ${m.descrizione.slice(0, 120)}`.trim(),
-    openGraph: { title: titolo, images: m.foto[0] ? [`/media/${m.foto[0]}`] : ["/brand/faieta-marine.png"] },
+    title: `${titolo} a Pescara`,
+    description: descrizione,
+    alternates: { canonical: `/vetrina/mezzo/${id}` },
+    openGraph: { title: titolo, description: descrizione, images: [img], type: "website" },
+    twitter: { card: "summary_large_image", title: titolo, description: descrizione, images: [img] },
   };
 }
 
@@ -37,8 +43,25 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
   const altri = correlati.filter((x) => x.id !== m.id && x.stato === "PUBBLICATO").slice(0, 3);
   const venduto = m.stato === "VENDUTO";
 
+  const base = siteUrl();
+  const prodotto = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: nome,
+    brand: { "@type": "Brand", name: marca?.nome ?? m.marca },
+    category: nomeCategoria(m.categoria),
+    description: m.descrizione || undefined,
+    image: m.foto.map((f) => `${base}/media/${f}`),
+    url: `${base}/vetrina/mezzo/${m.id}`,
+    itemCondition: m.condizione === "USATO" ? "https://schema.org/UsedCondition" : "https://schema.org/NewCondition",
+    offers:
+      m.prezzo != null && !venduto
+        ? { "@type": "Offer", price: m.prezzo, priceCurrency: "EUR", availability: m.condizione === "DA_ORDINARE" ? "https://schema.org/PreOrder" : "https://schema.org/InStock", url: `${base}/vetrina/mezzo/${m.id}` }
+        : undefined,
+  };
   return (
     <main className="vt-wrap" style={{ paddingTop: 20 }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(prodotto).replace(/</g, "\\u003c") }} />
       <p className="vt-briciole" style={{ color: "var(--muted)" }}>
         <Link href="/vetrina">Home</Link> › {m.condizione === "DA_ORDINARE" ? <Link href={`/vetrina/marchi/${m.marca}`}>Catalogo {marca?.nome}</Link> : <Link href={`/vetrina/mezzi?condizione=${cond?.slug ?? ""}`}>{cond?.titolo}</Link>} › {nome}
       </p>
