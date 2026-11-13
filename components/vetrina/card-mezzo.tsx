@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Ship } from "lucide-react";
 import type { Vehicle } from "@/db/schema";
 import { getMarchio } from "@/lib/brands/catalog";
+import { AzioniMezzo } from "./azioni-mezzo";
 import { CONDIZIONI, euro, metri } from "@/lib/vetrina/catalog";
 
 export function CardMezzo({ m }: { m: Vehicle }) {
@@ -9,6 +10,7 @@ export function CardMezzo({ m }: { m: Vehicle }) {
   const cond = CONDIZIONI.find((c) => c.id === m.condizione);
   const venduto = m.stato === "VENDUTO";
   return (
+    <div className="vt-card-wrap">
     <Link href={`/vetrina/mezzo/${m.id}`} className="vt-card">
       <div className="vt-card-foto">
         {m.foto[0] ? (
@@ -33,5 +35,7 @@ export function CardMezzo({ m }: { m: Vehicle }) {
         <div className="vt-prezzo">{m.prezzo == null ? <small>Prezzo su richiesta</small> : euro(m.prezzo)}</div>
       </div>
     </Link>
+    {!venduto && <AzioniMezzo id={m.id} />}
+    </div>
   );
 }

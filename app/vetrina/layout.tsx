@@ -4,6 +4,7 @@ import "./vetrina.css";
 import { CookieConsent } from "@/components/landing/consent";
 import { getSiteSettings } from "@/features/settings/service";
 import { getVetrinaSettings, promoInCorso } from "@/features/vetrina/service";
+import { BarraScelte } from "@/components/vetrina/barra-scelte";
 import { WhatsAppFisso } from "@/components/vetrina/whatsapp";
 import { parteIndirizzo, siteUrl } from "@/lib/seo/site";
 import { PopupPromo } from "@/components/vetrina/popup-promo";
@@ -110,6 +111,7 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
           </small>
         </div>
       </footer>
+      <BarraScelte />
       {v.whatsapp && (
         <WhatsAppFisso numero={v.whatsapp} />
       )}

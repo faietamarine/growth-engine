@@ -231,3 +231,22 @@
 /* icone personalizzate caricate dal gestionale */
 .vt-cat-t>img.vt-ico,.vt-cat-t:hover>img.vt-ico{right:auto;bottom:auto;left:50%;top:36%;width:78%;height:auto;max-height:56%;object-fit:contain;transform:translate(-50%,-50%)}
 .vt-area>img.vt-ico,.vt-area:hover>img.vt-ico{right:auto;bottom:auto;left:50%;top:44%;width:56%;height:auto;max-height:70%;object-fit:contain;transform:translate(-50%,-50%)}
+
+/* preferiti e confronto */
+.vt-card-wrap{position:relative;display:flex;min-width:0}
+.vt-card-wrap>.vt-card{flex:1}
+.vt-azioni{position:absolute;top:10px;right:10px;z-index:2;display:flex;flex-direction:column;gap:8px}
+.vt-az{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:40px;min-height:40px;border-radius:999px;border:0;background:rgba(255,255,255,.94);color:var(--blu-scuro);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);font:700 13px Inter,system-ui,sans-serif}
+.vt-az.on{background:var(--blu);color:#fff}
+.vt-azioni-est{position:static;flex-direction:row;flex-wrap:wrap;margin:6px 0 10px}
+.vt-azioni-est .vt-az{padding:0 14px;border:2px solid var(--linea);box-shadow:none;background:#fff}
+.vt-azioni-est .vt-az.on{background:var(--blu);border-color:var(--blu)}
+.vt-barra-scelte{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;flex-wrap:wrap;gap:8px;max-width:calc(100% - 100px)}
+.vt-barra-scelte a,.vt-barra-scelte span{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:999px;background:var(--blu-scuro);color:#fff;font:700 13px Inter,system-ui,sans-serif;text-decoration:none;box-shadow:0 8px 22px rgba(0,0,0,.28)}
+.vt-barra-scelte a.forte{background:var(--giallo);color:var(--ink)}
+.vt-confr{overflow-x:auto;background:#fff;border-radius:18px;box-shadow:0 2px 14px rgba(27,36,48,.08)}
+.vt-confr table{border-collapse:collapse;width:100%;min-width:560px}
+.vt-confr th,.vt-confr td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--linea);font-size:14px}
+.vt-confr th[scope=row]{color:var(--muted);font-weight:700;width:120px;white-space:nowrap}
+.vt-confr img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block}
+.vt-confr .best{color:var(--blu);font-weight:800}
