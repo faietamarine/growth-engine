@@ -4,7 +4,9 @@ import { MessageCircle } from "lucide-react";
 import "./vetrina.css";
 import { CookieConsent } from "@/components/landing/consent";
 import { getSiteSettings } from "@/features/settings/service";
-import { getVetrinaSettings } from "@/features/vetrina/service";
+import { getVetrinaSettings, promoInCorso } from "@/features/vetrina/service";
+import { PopupPromo } from "@/components/vetrina/popup-promo";
+import { etichettaCta } from "@/lib/vetrina/promo";
 import { CONDIZIONI } from "@/lib/vetrina/catalog";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function VetrinaLayout({ children }: { children: React.ReactNode }) {
-  const [s, v] = await Promise.all([getSiteSettings(), getVetrinaSettings()]);
+  const [s, v, promo] = await Promise.all([getSiteSettings(), getVetrinaSettings(), promoInCorso()]);
   const tel = v.telefono.replace(/[^\d+]/g, "");
   const telHref = `tel:${tel.startsWith("+") ? tel : `+39${tel}`}`;
   return (
@@ -96,6 +98,17 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
         <a className="vt-wa" href={`https://wa.me/${v.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener" aria-label="Scrivici su WhatsApp">
           <MessageCircle size={30} color="#fff" aria-hidden />
         </a>
+      )}
+      {promo && (
+        <PopupPromo
+          promo={{
+            chiave: `${promo.id}-${promo.updatedAt.getTime?.() ?? promo.updatedAt}`,
+            titolo: promo.titolo,
+            testo: promo.testo,
+            href: promo.ctaTipo === "VISITA" ? "/vetrina#appuntamento" : promo.ctaTipo === "MEZZO" && promo.mezzoId ? `/vetrina/mezzo/${promo.mezzoId}` : null,
+            cta: etichettaCta(promo),
+          }}
+        />
       )}
       <CookieConsent ids={{ metaPixelId: s.metaPixelId, ga4Id: s.ga4Id, gtmId: s.gtmId }} />
     </div>

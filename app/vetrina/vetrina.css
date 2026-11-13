@@ -198,3 +198,11 @@
 .vt-wa:hover{transform:scale(1.08)}
 
 @media(prefers-reduced-motion:reduce){.vt *,.vt *::before,.vt *::after{animation:none!important;transition:none!important}}
+
+/* avviso / promo */
+.vt-promo{position:fixed;z-index:45;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));width:min(340px,calc(100vw - 32px));background:#fff;border-radius:18px;padding:18px 18px 16px;box-shadow:0 18px 50px rgba(4,27,61,.35);border-top:5px solid var(--giallo);animation:vt-sali .5s ease both;display:grid;gap:8px}
+.vt-promo b{font-family:Sora,Inter,sans-serif;font-size:17px;color:var(--blu-scuro);padding-right:26px;line-height:1.25}
+.vt-promo p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.5}
+.vt-promo .vt-btn{min-height:44px;font-size:15px;margin-top:4px}
+.vt-promo-x{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:0;background:var(--sfondo);color:var(--blu-scuro);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.vt-promo-x:hover{background:var(--blu-chiaro)}

@@ -1,9 +1,10 @@
 import "server-only";
 import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { db } from "@/db/client";
-import { media, settings, vehicles, type Vehicle, type User } from "@/db/schema";
+import { media, promos, settings, vehicles, type Vehicle, type User } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import type { MezzoInput } from "@/lib/vetrina/catalog";
+import { inCorso, oggiRoma, type PromoInput } from "@/lib/vetrina/promo";
 
 /* ---------- Impostazioni della vetrina (banner e contatti) ---------- */
 export type VetrinaSettings = { bannerId: string; telefono: string; email: string; indirizzo: string; whatsapp: string };
@@ -124,4 +125,44 @@ export async function mezziPubblici(f: FiltriVetrina = {}) {
 export async function mezzoPubblico(id: string) {
   const m = await getMezzo(id);
   return m && m.stato !== "BOZZA" ? m : undefined;
+}
+
+/* ---------- Avvisi e promo ---------- */
+
+const valoriPromo = (d: PromoInput) => ({
+  titolo: d.titolo,
+  testo: d.testo,
+  ctaTipo: d.ctaTipo,
+  ctaTesto: d.ctaTesto,
+  mezzoId: d.ctaTipo === "MEZZO" ? (d.mezzoId ?? null) : null,
+  inizio: d.inizio,
+  fine: d.fine,
+  attivo: d.attivo,
+});
+
+export async function elencoPromo() {
+  return db.select().from(promos).orderBy(desc(promos.inizio));
+}
+export async function creaPromo(d: PromoInput, user: User) {
+  const [r] = await db.insert(promos).values(valoriPromo(d)).returning({ id: promos.id });
+  await audit(user, "vetrina", "promo", r.id, `avviso creato: ${d.titolo}`);
+}
+export async function aggiornaPromo(id: string, d: PromoInput, user: User) {
+  await db.update(promos).set(valoriPromo(d)).where(eq(promos.id, id));
+  await audit(user, "vetrina", "promo", id, `avviso aggiornato: ${d.titolo}`);
+}
+export async function eliminaPromo(id: string, user: User) {
+  await db.delete(promos).where(eq(promos.id, id));
+  await audit(user, "vetrina", "promo", id, "avviso eliminato");
+}
+
+/** L'avviso da mostrare ora: uno solo, il più recente tra quelli in corso. Un mezzo non più online fa sparire il pulsante. */
+export async function promoInCorso() {
+  const oggi = oggiRoma();
+  const tutti = await db.select().from(promos).orderBy(desc(promos.inizio), desc(promos.createdAt));
+  const p = tutti.find((x) => inCorso(x, oggi));
+  if (!p) return null;
+  let ctaTipo = p.ctaTipo;
+  if (ctaTipo === "MEZZO" && !(p.mezzoId && (await mezzoPubblico(p.mezzoId)))) ctaTipo = "NESSUNO";
+  return { ...p, ctaTipo };
 }

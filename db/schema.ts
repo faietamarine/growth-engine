@@ -326,3 +326,19 @@ export const vehicles = sqliteTable(
   (t) => [index("vehicles_stato_idx").on(t.stato, t.condizione), index("vehicles_marca_idx").on(t.marca)],
 );
 export type Vehicle = typeof vehicles.$inferSelect;
+
+/* Avvisi e promo mostrati come piccolo popup sul sito pubblico, tra due date. */
+export const promos = sqliteTable("promos", {
+  id: id(),
+  titolo: text("titolo").notNull(),
+  testo: text("testo").notNull().default(""),
+  ctaTipo: text("cta_tipo").notNull().default("NESSUNO"), // NESSUNO, VISITA, MEZZO
+  ctaTesto: text("cta_testo").notNull().default(""),
+  mezzoId: text("mezzo_id"),
+  inizio: text("inizio").notNull(), // AAAA-MM-GG
+  fine: text("fine").notNull(), // AAAA-MM-GG, incluso
+  attivo: integer("attivo", { mode: "boolean" }).notNull().default(true),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+export type Promo = typeof promos.$inferSelect;

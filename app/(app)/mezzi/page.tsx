@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Ship, Globe, TriangleAlert, ExternalLink } from "lucide-react";
+import { Plus, Ship, Globe, Megaphone, TriangleAlert, ExternalLink } from "lucide-react";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/rbac";
 import { elencoMezzi } from "@/features/vetrina/service";
@@ -34,6 +34,9 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
             </Link>
             {scrivi && (
               <>
+                <Link href="/mezzi/avvisi" className="btn-ghost">
+                  <Megaphone size={16} /> Avvisi e promo
+                </Link>
                 <Link href="/mezzi/sito" className="btn-ghost">
                   <Globe size={16} /> Banner e contatti
                 </Link>

@@ -54,3 +54,27 @@ test("quiz: i mezzi si ordinano per vicinanza al profilo", () => {
   assert.equal(ord[0].id, "b");
   assert.equal(ord.at(-1)!.id, "a");
 });
+
+import { inCorso, oggiRoma, promoSchema } from "@/lib/vetrina/promo";
+
+test("avviso: date incluse, spento e scaduto non compaiono", () => {
+  const p = { attivo: true, inizio: "2026-11-27", fine: "2026-11-30" };
+  assert.equal(inCorso(p, "2026-11-26"), false);
+  assert.equal(inCorso(p, "2026-11-27"), true);
+  assert.equal(inCorso(p, "2026-11-30"), true);
+  assert.equal(inCorso(p, "2026-12-01"), false);
+  assert.equal(inCorso({ ...p, attivo: false }, "2026-11-28"), false);
+});
+
+test("avviso: oggi si calcola sul giorno italiano, non UTC", () => {
+  assert.equal(oggiRoma(new Date("2026-11-27T23:30:00Z")), "2026-11-28");
+  assert.equal(oggiRoma(new Date("2026-06-30T22:30:00Z")), "2026-07-01");
+});
+
+test("avviso: validazione di date e pulsante", () => {
+  const base = { titolo: "Black Friday", inizio: "2026-11-27", fine: "2026-11-30" };
+  assert.equal(promoSchema.safeParse(base).success, true);
+  assert.equal(promoSchema.safeParse({ ...base, fine: "2026-11-01" }).success, false);
+  assert.equal(promoSchema.safeParse({ ...base, ctaTipo: "MEZZO" }).success, false);
+  assert.equal(promoSchema.safeParse({ ...base, titolo: "x".repeat(71) }).success, false);
+});

@@ -88,3 +88,36 @@ export async function salvaSitoAction(_: FormState, form: FormData): Promise<For
   revalidatePath("/vetrina", "layout");
   return { ok: "Dati del sito salvati." };
 }
+
+/* ---------- Avvisi e promo ---------- */
+import { promoSchema } from "@/lib/vetrina/promo";
+import { aggiornaPromo, creaPromo, eliminaPromo } from "@/features/vetrina/service";
+
+export async function creaPromoAction(_: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  const p = promoSchema.safeParse(Object.fromEntries(form));
+  if (!p.success) return { errore: p.error.issues[0].message };
+  await creaPromo(p.data, user);
+  revalidatePath("/mezzi/avvisi");
+  revalidatePath("/vetrina", "layout");
+  return { ok: "Avviso salvato." };
+}
+
+export async function salvaPromoAction(id: string, _: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  if (!uuid.safeParse(id).success) return { errore: "Avviso non valido." };
+  const p = promoSchema.safeParse(Object.fromEntries(form));
+  if (!p.success) return { errore: p.error.issues[0].message };
+  await aggiornaPromo(id, p.data, user);
+  revalidatePath("/mezzi/avvisi");
+  revalidatePath("/vetrina", "layout");
+  return { ok: "Avviso aggiornato." };
+}
+
+export async function eliminaPromoAction(form: FormData) {
+  const user = await requireUser("contenuti:scrivi");
+  await eliminaPromo(uuid.parse(form.get("id")), user);
+  revalidatePath("/mezzi/avvisi");
+  revalidatePath("/vetrina", "layout");
+  redirect("/mezzi/avvisi");
+}
