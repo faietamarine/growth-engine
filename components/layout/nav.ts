@@ -1,4 +1,4 @@
-import { LayoutDashboard, Megaphone, Workflow, Magnet, PanelsTopLeft, CalendarDays, Image as ImageIcon, PartyPopper, Send, Settings, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Megaphone, Workflow, Magnet, PanelsTopLeft, CalendarDays, Image as ImageIcon, PartyPopper, Send, Settings, BarChart3, Ship } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { can, type Action } from "@/lib/rbac";
 import type { Role } from "@/db/schema";
@@ -16,6 +16,7 @@ export const NAV: NavItem[] = [
   { href: "/eventi", label: "Eventi", icon: PartyPopper },
   { href: "/calendario", label: "Calendario", icon: CalendarDays },
   { href: "/asset", label: "Asset", icon: ImageIcon },
+  { href: "/mezzi", label: "Vetrina mezzi", icon: Ship },
   { href: "/report", label: "Report", icon: BarChart3, perm: "lead:vedi" },
   { href: "/impostazioni", label: "Impostazioni", icon: Settings, perm: "impostazioni:gestisci" },
 ];

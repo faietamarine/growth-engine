@@ -1,4 +1,4 @@
-import { type AnySQLiteColumn, sqliteTable, text, integer, real, index, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { type AnySQLiteColumn, sqliteTable, text, integer, real, index, uniqueIndex, blob } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import type { CampaignPlan } from "@/types/campaign";
 import type { LeadMagnetContent } from "@/types/lead-magnet";
@@ -287,3 +287,42 @@ export const settings = sqliteTable("settings", {
   value: text("value", { mode: "json" }).$type<Record<string, unknown>>().notNull(),
   updatedAt: updatedAt(),
 });
+
+
+/* ============================================================================
+   Vetrina pubblica: foto dei mezzi (salvate nel database, già compresse dal browser)
+   e annunci inseriti a mano.
+   ============================================================================ */
+export const media = sqliteTable("media", {
+  id: id(),
+  mime: text("mime").notNull(),
+  data: blob("data", { mode: "buffer" }).notNull(),
+  size: integer("size").notNull(),
+  createdAt: createdAt(),
+});
+
+export const vehicles = sqliteTable(
+  "vehicles",
+  {
+    id: id(),
+    marca: text("marca").notNull(), // slug di lib/brands/catalog
+    modello: text("modello").notNull(),
+    categoria: text("categoria").notNull(), // GOMMONE, OPEN, ...
+    condizione: text("condizione").notNull(), // PRONTA_CONSEGNA, DA_ORDINARE, USATO
+    stato: text("stato").notNull().default("BOZZA"), // BOZZA, PUBBLICATO, VENDUTO
+    anno: integer("anno"),
+    prezzo: integer("prezzo"), // euro; vuoto = "su richiesta"
+    lunghezza: real("lunghezza"), // metri
+    motore: text("motore").notNull().default(""),
+    ore: integer("ore"),
+    posti: integer("posti"),
+    descrizione: text("descrizione").notNull().default(""),
+    dotazioni: text("dotazioni", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`),
+    foto: text("foto", { mode: "json" }).$type<string[]>().notNull().default(sql`'[]'`), // id in media, la prima è la copertina
+    inEvidenza: integer("in_evidenza", { mode: "boolean" }).notNull().default(false),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("vehicles_stato_idx").on(t.stato, t.condizione), index("vehicles_marca_idx").on(t.marca)],
+);
+export type Vehicle = typeof vehicles.$inferSelect;

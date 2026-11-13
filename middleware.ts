@@ -3,7 +3,7 @@ import { SESSION_COOKIE, verifySession } from "@/lib/auth/token";
 import { AB_COOKIE } from "@/lib/landing/ab";
 
 // Pagine pubbliche: login, landing pubblicate (/l/...), API di raccolta lead e risorse statiche.
-const PUBLIC = [/^\/login/, /^\/l\//, /^\/api\/lead$/, /^\/api\/track$/, /^\/brand\//, /^\/_next\//, /^\/favicon/, /^\/icon\.svg/];
+const PUBLIC = [/^\/login/, /^\/l\//, /^\/api\/lead$/, /^\/api\/track$/, /^\/vetrina/, /^\/media\//, /^\/brand\//, /^\/_next\//, /^\/favicon/, /^\/icon\.svg/];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

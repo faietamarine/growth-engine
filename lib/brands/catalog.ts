@@ -7,7 +7,7 @@ export const MARCHI: Marchio[] = [
   { slug: "jeanneau", nome: "Jeanneau", logo: "/brand/jeanneau.png" },
   { slug: "capelli", nome: "Capelli", logo: "/brand/capelli.png" },
   { slug: "yamaha", nome: "Yamaha", logo: "/brand/yamaha.png", nota: "Fuoribordo e WaveRunner" },
-  { slug: "invictus", nome: "Invictus", logo: "/brand/invictus.png", nota: "Dealer" },
+  { slug: "invictus", nome: "Invictus", logo: "/brand/invictus.png" },
   { slug: "capoforte", nome: "Capoforte", logo: "/brand/capoforte.png" },
 ];
 
