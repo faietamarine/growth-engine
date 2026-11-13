@@ -8,13 +8,14 @@ import type { MezzoInput } from "@/lib/vetrina/catalog";
 import { inCorso, oggiRoma, type PromoInput } from "@/lib/vetrina/promo";
 
 /* ---------- Impostazioni della vetrina (banner e contatti) ---------- */
-export type VetrinaSettings = { bannerId: string; telefono: string; email: string; indirizzo: string; whatsapp: string };
+export type VetrinaSettings = { bannerId: string; telefono: string; email: string; indirizzo: string; whatsapp: string; icone: Record<string, string> };
 export const VETRINA_DEFAULT: VetrinaSettings = {
   bannerId: "",
   telefono: "0854 7078252",
   email: "marcomichetti@faietamoto.com",
   indirizzo: "Via Valle Roveto 29, 65124 Pescara (PE)",
   whatsapp: "",
+  icone: {},
 };
 
 export async function getVetrinaSettings(): Promise<VetrinaSettings> {
@@ -23,11 +24,13 @@ export async function getVetrinaSettings(): Promise<VetrinaSettings> {
 }
 
 export async function saveVetrinaSettings(s: VetrinaSettings, user: User) {
+  const prima = await getVetrinaSettings();
   await db
     .insert(settings)
     .values({ key: "vetrina", value: s })
     .onConflictDoUpdate({ target: settings.key, set: { value: s } });
   await audit(user, "vetrina", "settings", "vetrina", "dati della vetrina aggiornati");
+  await pulisciFoto([prima.bannerId, ...Object.values(prima.icone ?? {})].filter(Boolean));
 }
 
 /* ---------- Foto ---------- */
@@ -44,7 +47,7 @@ export async function leggiFoto(id: string) {
 async function pulisciFoto(candidati: string[]) {
   if (!candidati.length) return;
   const [tutti, s] = await Promise.all([db.select({ foto: vehicles.foto }).from(vehicles), getVetrinaSettings()]);
-  const usate = new Set([...tutti.flatMap((v) => v.foto), s.bannerId]);
+  const usate = new Set([...tutti.flatMap((v) => v.foto), s.bannerId, ...Object.values(s.icone ?? {})]);
   const orfane = candidati.filter((id) => !usate.has(id));
   if (orfane.length) await db.delete(media).where(inArray(media.id, orfane));
 }

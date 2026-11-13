@@ -5,8 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import type { FormState } from "@/components/ui/action-form";
-import { controllaMezzo, mezzoSchema, STATI_MEZZO } from "@/lib/vetrina/catalog";
-import { aggiornaMezzo, cambiaStatoMezzo, caricaCatalogo, creaMezzo, eliminaMezzo, saveVetrinaSettings } from "@/features/vetrina/service";
+import { CATEGORIA_IDS, controllaMezzo, mezzoSchema, STATI_MEZZO } from "@/lib/vetrina/catalog";
+import { aggiornaMezzo, cambiaStatoMezzo, caricaCatalogo, creaMezzo, eliminaMezzo, getVetrinaSettings, saveVetrinaSettings } from "@/features/vetrina/service";
 
 const uuid = z.string().uuid();
 const vai = (id: string, k: "msg" | "errore", m: string) => `/mezzi/${id}?${k}=${encodeURIComponent(m)}`;
@@ -80,11 +80,20 @@ const sitoSchema = z.object({
   whatsapp: z.string().trim().max(25).default(""),
 });
 
+const iconeSchema = z.preprocess((v) => {
+  try {
+    return JSON.parse(String(v ?? "{}"));
+  } catch {
+    return {};
+  }
+}, z.record(z.enum(CATEGORIA_IDS), z.string().uuid()));
+
 export async function salvaSitoAction(_: FormState, form: FormData): Promise<FormState> {
   const user = await requireUser("contenuti:scrivi");
   const p = sitoSchema.safeParse(Object.fromEntries(form));
   if (!p.success) return { errore: p.error.issues[0].message };
-  await saveVetrinaSettings(p.data, user);
+  const attuali = await getVetrinaSettings();
+  await saveVetrinaSettings({ ...attuali, ...p.data }, user);
   revalidatePath("/vetrina", "layout");
   return { ok: "Dati del sito salvati." };
 }
@@ -127,4 +136,14 @@ export async function caricaCatalogoAction() {
   const n = await caricaCatalogo(user);
   rinfresca();
   redirect(`/mezzi?msg=${encodeURIComponent(n ? `Caricati ${n} modelli a catalogo dei marchi.` : "Il catalogo è già completo: nessun modello nuovo.")}`);
+}
+
+export async function salvaIconeAction(_: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  const p = iconeSchema.safeParse(form.get("icone"));
+  if (!p.success) return { errore: "Icone non valide." };
+  const attuali = await getVetrinaSettings();
+  await saveVetrinaSettings({ ...attuali, icone: p.data as Record<string, string> }, user);
+  revalidatePath("/vetrina", "layout");
+  return { ok: "Icone salvate: sono già online sul sito." };
 }

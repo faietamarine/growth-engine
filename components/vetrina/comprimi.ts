@@ -27,3 +27,25 @@ export async function caricaFoto(file: File): Promise<string> {
   if (!r.ok) throw new Error(j.errore ?? "Caricamento non riuscito");
   return j.id as string;
 }
+
+/** Icona di categoria: resta PNG con sfondo trasparente, lato lungo max 640px. */
+export async function caricaIcona(file: File): Promise<string> {
+  if (!/^image\/(png|jpeg|webp)$/.test(file.type)) throw new Error("Usa un file PNG (meglio), JPG o WebP.");
+  const bmp = await createImageBitmap(file);
+  const scala = Math.min(1, 640 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * scala);
+  c.height = Math.round(bmp.height * scala);
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("Impossibile elaborare l'immagine.");
+  ctx.drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close();
+  const blob: Blob | null = await new Promise((ok) => c.toBlob(ok, "image/png"));
+  if (!blob) throw new Error("Impossibile elaborare l'immagine.");
+  const fd = new FormData();
+  fd.set("file", new File([blob], "icona.png", { type: "image/png" }));
+  const r = await fetch("/api/media", { method: "POST", body: fd });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.errore ?? "Caricamento non riuscito");
+  return j.id as string;
+}

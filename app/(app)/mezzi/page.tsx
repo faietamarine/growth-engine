@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Ship, Globe, Megaphone, TriangleAlert, ExternalLink } from "lucide-react";
+import { Plus, Ship, Globe, Megaphone, Shapes, TriangleAlert, ExternalLink } from "lucide-react";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/rbac";
 import { elencoMezzi } from "@/features/vetrina/service";
@@ -39,6 +39,9 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
                     <Ship size={16} /> Carica modelli a catalogo
                   </SubmitButton>
                 </form>
+                <Link href="/mezzi/icone" className="btn-ghost">
+                  <Shapes size={16} /> Icone
+                </Link>
                 <Link href="/mezzi/avvisi" className="btn-ghost">
                   <Megaphone size={16} /> Avvisi e promo
                 </Link>

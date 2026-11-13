@@ -140,11 +140,11 @@ export default async function VetrinaHome() {
             const n = conteggio(c.id);
             return (
               <Link key={c.id} href={`/vetrina/mezzi?categoria=${c.id}`} className="vt-cat-t">
-                {foto ? (
+                {foto && !v.icone?.[c.id] ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={`/media/${foto}`} alt="" loading="lazy" />
                 ) : (
-                  <IconaCategoria id={c.id} />
+                  <IconaCategoria id={c.id} custom={v.icone?.[c.id]} />
                 )}
                 <span className="vt-cat-testo">
                   <b>{c.nome}</b>

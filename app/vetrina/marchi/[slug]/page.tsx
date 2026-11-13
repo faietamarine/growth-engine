@@ -51,11 +51,11 @@ export default async function CatalogoMarchio({ params, searchParams }: { params
               const foto = tutti.find((m) => a.categorie.includes(m.categoria) && m.foto[0])?.foto[0];
               return (
                 <Link key={a.id} href={area?.id === a.id ? base : `${base}?area=${a.id}`} className="vt-area" aria-current={area?.id === a.id}>
-                  {foto ? (
+                  {foto && !v.icone?.[a.categorie[0]] ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={`/media/${foto}`} alt="" loading="lazy" />
                   ) : (
-                    <IconaCategoria id={a.categorie[0] as CategoriaId} />
+                    <IconaCategoria id={a.categorie[0] as CategoriaId} custom={v.icone?.[a.categorie[0]]} />
                   )}
                   <span>{a.nome}</span>
                 </Link>

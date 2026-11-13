@@ -57,7 +57,9 @@ const DISEGNI: Record<CategoriaId, React.ReactNode> = {
   ),
 };
 
-export function IconaCategoria({ id, title }: { id: CategoriaId; title?: string }) {
+export function IconaCategoria({ id, title, custom }: { id: CategoriaId; title?: string; custom?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  if (custom) return <img className="vt-ico" src={`/media/${custom}`} alt={title ?? ""} loading="lazy" />;
   return (
     <svg viewBox="0 0 120 72" role={title ? "img" : undefined} aria-label={title} aria-hidden={title ? undefined : true} focusable="false">
       {DISEGNI[id]}
