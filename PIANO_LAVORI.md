@@ -3,7 +3,7 @@
 - [x] 1 WhatsApp fisso con messaggio per mezzo
 - [x] 2 Anteprime social (Open Graph)
 - [x] 3 "Avvisami se arriva"
-- [ ] 4 Mezzo nella scheda del lead
+- [x] 4 Mezzo nella scheda del lead
 - [ ] 5 Confronto 2-3 mezzi e preferiti
 - [ ] 6 Brochure PDF lead magnet
 - [ ] 7 "Valuta la tua barca" (permuta)

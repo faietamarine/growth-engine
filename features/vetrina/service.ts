@@ -114,6 +114,14 @@ export async function caricaCatalogo(user: User) {
   return nuovi.length;
 }
 
+/** Mezzi per id (per mostrarli nelle schede dei lead). */
+export async function mezziPerId(ids: string[]) {
+  const uniche = [...new Set(ids)];
+  if (!uniche.length) return new Map<string, Vehicle>();
+  const righe = await db.select().from(vehicles).where(inArray(vehicles.id, uniche));
+  return new Map(righe.map((v) => [v.id, v]));
+}
+
 export async function getMezzo(id: string): Promise<Vehicle | undefined> {
   return db.query.vehicles.findFirst({ where: eq(vehicles.id, id) });
 }

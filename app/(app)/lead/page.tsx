@@ -1,9 +1,12 @@
 import Link from "next/link";
 import clsx from "clsx";
-import { Inbox, FileDown, Info, Check, X } from "lucide-react";
+import { Inbox, FileDown, Info, Check, X, Ship } from "lucide-react";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/rbac";
 import { listLeads, listDeliveries, getMinScore, type LeadView } from "@/features/leads/service";
+import { mezziPerId } from "@/features/vetrina/service";
+import { getMarchio } from "@/lib/brands/catalog";
+import { euro } from "@/lib/vetrina/catalog";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -22,6 +25,9 @@ const VISTE: { key: LeadView; label: string }[] = [
   { key: "tutti", label: "Tutti" },
 ];
 
+/** Id del mezzo da cui è partita una richiesta del sito (campo "Annuncio" delle risposte). */
+const idMezzo = (r: Record<string, string>) => r.Annuncio?.match(/\/vetrina\/mezzo\/([0-9a-f-]{36})/i)?.[1];
+
 const BAND_TONE = { caldo: "ok", tiepido: "gold", freddo: "neutral" } as const;
 
 export default async function LeadPage({ searchParams }: { searchParams: Promise<{ vista?: string }> }) {
@@ -30,6 +36,7 @@ export default async function LeadPage({ searchParams }: { searchParams: Promise
   const vista = (VISTE.find((v) => v.key === sp.vista)?.key ?? "coda") as LeadView;
   const [{ rows, counts }, lotti, minScore] = await Promise.all([listLeads(vista), listDeliveries(), getMinScore()]);
   const puoConsegnare = can(user.role, "lead:consegna");
+  const mezzi = await mezziPerId(rows.map((l) => idMezzo(l.answers ?? {})).filter((x): x is string => !!x));
 
   return (
     <>
@@ -93,6 +100,33 @@ export default async function LeadPage({ searchParams }: { searchParams: Promise
                       {vista !== "coda" && <Badge tone={LEAD_STATUS_UI[l.status].tone}>{LEAD_STATUS_UI[l.status].label}</Badge>}
                     </div>
                     <p className="mt-0.5 truncate text-[13px] text-ink">{l.interest || "Interesse non indicato"}</p>
+                    {(() => {
+                      const r = l.answers ?? {};
+                      const mz = mezzi.get(idMezzo(r) ?? "");
+                      const extra = [r.Richiesta, r["Giorno preferito"] && `giorno preferito ${r["Giorno preferito"]}`].filter(Boolean).join(" · ");
+                      if (!mz && !extra) return null;
+                      return (
+                        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                          {mz && (
+                            <Link href={`/mezzi/${mz.id}`} className="flex items-center gap-2 rounded-lg border border-line bg-surface px-1.5 py-1 text-[12px] hover:border-ink-soft">
+                              {mz.foto[0] ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={`/media/${mz.foto[0]}`} alt="" className="h-8 w-11 rounded object-cover" />
+                              ) : (
+                                <span className="grid h-8 w-11 place-items-center rounded bg-line text-ink-faint">
+                                  <Ship size={14} />
+                                </span>
+                              )}
+                              <span className="font-semibold">
+                                {getMarchio(mz.marca)?.nome ?? mz.marca} {mz.modello}
+                              </span>
+                              <span className="text-ink-faint">{mz.stato === "VENDUTO" ? "venduto" : euro(mz.prezzo)}</span>
+                            </Link>
+                          )}
+                          {extra && <span className="text-[12px] text-ink-soft">{extra}</span>}
+                        </div>
+                      );
+                    })()}
                     <p className="num truncate text-[12px] text-ink-faint">
                       {[dataBreve(l.createdAt), CHANNEL_LABEL[l.channel], l.campaignName, l.timeframe, l.phone].filter(Boolean).join(" · ")}
                     </p>
