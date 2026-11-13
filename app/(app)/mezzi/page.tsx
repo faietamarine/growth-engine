@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Plus, Ship, Globe, Megaphone, Shapes, TriangleAlert, ExternalLink } from "lucide-react";
+import { Plus, Ship, Globe, Megaphone, Shapes, Copy, Clock, BarChart3, Wrench, TriangleAlert, ExternalLink } from "lucide-react";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/rbac";
-import { elencoMezzi } from "@/features/vetrina/service";
+import { elencoMezzi, mezziFermi } from "@/features/vetrina/service";
 import { getMarchio } from "@/lib/brands/catalog";
 import { CONDIZIONI, euro, nomeCategoria, STATO_UI, type StatoMezzo } from "@/lib/vetrina/catalog";
 import { PageHeader } from "@/components/layout/page-header";
@@ -11,6 +11,7 @@ import { Flash } from "@/components/ui/flash";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { caricaCatalogoAction, statoMezzoAction } from "./actions";
+import { duplicaMezzoAction } from "./strumenti/actions";
 
 export const metadata = { title: "Vetrina mezzi" };
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
   const user = await requireUser();
   const sp = await searchParams;
   const scrivi = can(user.role, "contenuti:scrivi");
-  const mezzi = await elencoMezzi();
+  const [mezzi, fermi] = await Promise.all([elencoMezzi(), mezziFermi(90)]);
   return (
     <>
       <PageHeader
@@ -39,6 +40,12 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
                     <Ship size={16} /> Carica modelli a catalogo
                   </SubmitButton>
                 </form>
+                <Link href="/mezzi/report" className="btn-ghost">
+                  <BarChart3 size={16} /> Visite e richieste
+                </Link>
+                <Link href="/mezzi/strumenti" className="btn-ghost">
+                  <Wrench size={16} /> Strumenti
+                </Link>
                 <Link href="/mezzi/icone" className="btn-ghost">
                   <Shapes size={16} /> Icone
                 </Link>
@@ -61,6 +68,23 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
         <p role="alert" className="mb-4 flex items-center gap-2 rounded-md bg-danger/10 px-4 py-2.5 text-sm font-medium text-danger">
           <TriangleAlert size={16} /> {sp.errore.slice(0, 200)}
         </p>
+      )}
+      {fermi.length > 0 && (
+        <div role="status" className="card mb-4 flex gap-3 px-4 py-3 text-[13px]">
+          <Clock size={17} className="mt-0.5 shrink-0 text-warn" />
+          <div>
+            <p className="font-semibold">{fermi.length === 1 ? "1 mezzo è online da oltre 90 giorni senza modifiche" : `${fermi.length} mezzi sono online da oltre 90 giorni senza modifiche`}</p>
+            <p className="text-ink-soft">Conviene ravvivarli (nuove foto, prezzo) oppure toglierli dal sito:{" "}
+              {fermi.slice(0, 6).map((m, i) => (
+                <span key={m.id}>
+                  {i > 0 && ", "}
+                  <Link href={`/mezzi/${m.id}`} className="font-medium text-info underline">{getMarchio(m.marca)?.nome ?? m.marca} {m.modello}</Link>
+                </span>
+              ))}
+              {fermi.length > 6 ? ` e altri ${fermi.length - 6}` : ""}.
+            </p>
+          </div>
+        </div>
       )}
       {mezzi.length === 0 ? (
         <div className="card">
@@ -115,6 +139,14 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
                         Togli dal sito
                       </button>
                     )}
+                  </form>
+                )}
+                {scrivi && (
+                  <form action={duplicaMezzoAction} className="-mt-1">
+                    <input type="hidden" name="id" value={m.id} />
+                    <button className="btn-ghost btn-sm" title="Crea una copia come bozza">
+                      <Copy size={13} /> Duplica
+                    </button>
                   </form>
                 )}
               </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getVetrinaSettings, mezzoPubblico, mezziPubblici } from "@/features/vetrina/service";
+import { getVetrinaSettings, mezzoPubblico, mezziPubblici, registraVisita } from "@/features/vetrina/service";
 import { getSiteSettings } from "@/features/settings/service";
 import { siteUrl } from "@/lib/seo/site";
 import { getMarchio } from "@/lib/brands/catalog";
@@ -38,6 +38,7 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
   if (!UUID.test(id)) notFound();
   const m = await mezzoPubblico(id);
   if (!m) notFound();
+  await registraVisita(m.id);
   const [v, s, correlati] = await Promise.all([getVetrinaSettings(), getSiteSettings(), mezziPubblici({ marca: m.marca })]);
   const marca = getMarchio(m.marca);
   const nome = `${marca?.nome ?? m.marca} ${m.modello}`;

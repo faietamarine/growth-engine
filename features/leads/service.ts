@@ -1,3 +1,4 @@
+import { avvisaNuovaRichiesta } from "@/lib/notify";
 import "server-only";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/db/client";
@@ -66,6 +67,7 @@ export async function createLeadFromInput(input: LeadInput, ip?: string) {
       variant,
     })
     .returning({ id: leads.id, status: leads.status, score: leads.score });
+  if ((input.canale ?? "SITO") === "SITO") await avvisaNuovaRichiesta({ nome: `${input.nome} ${input.cognome}`.trim(), telefono: input.telefono, interesse: input.interesse, fonte: input.fonte });
   await audit(null, "lead_ricevuto", "lead", row.id, `${input.fonte || input.canale || "form"} · punteggio ${score}`);
   return row;
 }

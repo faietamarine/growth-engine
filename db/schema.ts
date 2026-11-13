@@ -1,4 +1,4 @@
-import { type AnySQLiteColumn, sqliteTable, text, integer, real, index, uniqueIndex, blob } from "drizzle-orm/sqlite-core";
+import { type AnySQLiteColumn, sqliteTable, text, integer, real, index, uniqueIndex, blob, primaryKey } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import type { CampaignPlan } from "@/types/campaign";
 import type { LeadMagnetContent } from "@/types/lead-magnet";
@@ -218,6 +218,7 @@ export const leads = sqliteTable(
     reparto: text("reparto", { enum: REPARTI }).notNull().default("VENDITA"),
     score: integer("score").notNull().default(0),
     status: text("status", { enum: LEAD_STATUS }).notNull().default("NUOVO"),
+    calledAt: integer("called_at", { mode: "timestamp_ms" }), // quando il team ha richiamato (richieste del sito)
     campaignId: text("campaign_id").references(() => campaigns.id, { onDelete: "set null" }),
     landingPageId: text("landing_page_id").references(() => landingPages.id, { onDelete: "set null" }),
     eventId: text("event_id").references(() => events.id, { onDelete: "set null" }),
@@ -343,3 +344,10 @@ export const promos = sqliteTable("promos", {
   updatedAt: updatedAt(),
 });
 export type Promo = typeof promos.$inferSelect;
+
+/** Visualizzazioni giornaliere della scheda di un mezzo sul sito pubblico (approssimate: contano anche alcuni robot). */
+export const vehicleViews = sqliteTable(
+  "vehicle_views",
+  { vehicleId: text("vehicle_id").notNull(), day: text("day").notNull(), views: integer("views").notNull().default(0) },
+  (t) => [primaryKey({ columns: [t.vehicleId, t.day] })],
+);

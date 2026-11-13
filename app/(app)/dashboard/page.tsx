@@ -2,6 +2,8 @@ import { LogoMarchio } from "@/components/brand/logo-marchio";
 import Link from "next/link";
 import { Megaphone, Users, Send, ListChecks, Plus, ArrowRight, CalendarClock, CircleAlert } from "lucide-react";
 import { getDashboard } from "@/features/dashboard/queries";
+import { richiesteDaRichiamare } from "@/features/vetrina/service";
+import { richiamatoAction } from "../mezzi/strumenti/actions";
 import { riepilogoMarchi } from "@/features/brands/service";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/rbac";
@@ -20,6 +22,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const negato = (await searchParams).accesso === "negato";
   const { kpi, campagne, produzione, canali, ritardi, oggi } = await getDashboard();
   const marchi = await riepilogoMarchi();
+  const daRichiamare = await richiesteDaRichiamare();
   const maxCanale = Math.max(1, ...canali.map((c) => c.n));
 
   return (
@@ -40,6 +43,34 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <p role="status" className="mb-4 rounded-md bg-warn/10 px-4 py-2.5 text-sm font-medium text-warn">
           La sezione che hai aperto non è disponibile per il tuo ruolo. Se ti serve, chiedi a un Admin.
         </p>
+      )}
+
+      {daRichiamare.length > 0 && (
+        <section className="card mb-4 border-warn/40 p-4" aria-label="Richieste dal sito da richiamare">
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold">
+            <CircleAlert size={17} className="text-warn" /> {daRichiamare.length === 1 ? "1 richiesta dal sito da richiamare" : `${daRichiamare.length} richieste dal sito da richiamare`}
+          </h2>
+          <ul className="mt-2 divide-y divide-line text-[13px]">
+            {daRichiamare.slice(0, 8).map((l) => {
+              const ore = Math.floor((Date.now() - l.createdAt.getTime()) / 3_600_000);
+              return (
+                <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                  <span className="min-w-0">
+                    <b>{l.firstName} {l.lastName}</b> · <a href={`tel:${l.phone.replace(/\s/g, "")}`} className="num font-medium text-info underline">{l.phone}</a>
+                    <span className="block truncate text-ink-soft">{l.interest}</span>
+                  </span>
+                  <span className="flex items-center gap-3">
+                    <span className={ore >= 4 ? "font-semibold text-danger" : "text-ink-faint"}>{ore < 1 ? "da meno di un'ora" : ore < 48 ? `da ${ore} ore` : `da ${Math.floor(ore / 24)} giorni`}</span>
+                    <form action={richiamatoAction}>
+                      <input type="hidden" name="id" value={l.id} />
+                      <button className="btn-ghost btn-sm">Richiamato</button>
+                    </form>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
       )}
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Indicatori">

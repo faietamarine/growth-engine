@@ -90,6 +90,7 @@ const lead = (o: Partial<Lead>): Lead => ({
   onSite: false,
   deliveredAt: null,
   deliveryBatch: null,
+  calledAt: null,
   createdAt: new Date("2027-03-10T10:00:00Z"),
   updatedAt: new Date("2027-03-10T10:00:00Z"),
   ...o,

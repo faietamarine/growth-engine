@@ -105,3 +105,39 @@ test("avviso: validazione di date e pulsante", () => {
   assert.equal(promoSchema.safeParse({ ...base, ctaTipo: "MEZZO" }).success, false);
   assert.equal(promoSchema.safeParse({ ...base, titolo: "x".repeat(71) }).success, false);
 });
+
+test("prezzi di gruppo: percentuale e importo, arrotondati ai 10 €, mai sotto zero", async () => {
+  const { nuovoPrezzo } = await import("../lib/vetrina/strumenti");
+  assert.equal(nuovoPrezzo(50000, { tipo: "PERCENTUALE", valore: 3 }), 51500);
+  assert.equal(nuovoPrezzo(48500, { tipo: "PERCENTUALE", valore: -2.5 }), 47290);
+  assert.equal(nuovoPrezzo(10000, { tipo: "IMPORTO", valore: -500 }), 9500);
+  assert.equal(nuovoPrezzo(100, { tipo: "IMPORTO", valore: -5000 }), 0);
+});
+
+test("import CSV: separatore ; o , , virgolette e righe con errore", async () => {
+  const { leggiCsv, righeImport } = await import("../lib/vetrina/strumenti");
+  const csv = leggiCsv('marca;modello;categoria;condizione;prezzo;descrizione\nCapelli;Tempest 600;Gommone;Pronta consegna;48.500;"Con ""tendalino""; nuovo"\nXyz;A;Open;Usato;1;\nJeanneau;Merry Fisher 695;Cabinato;Modelli a catalogo;;\n');
+  assert.equal(csv.length, 4);
+  const r = righeImport(csv);
+  assert.equal(r[0].dati?.marca, "capelli");
+  assert.equal(r[0].dati?.categoria, "GOMMONE");
+  assert.equal(r[0].dati?.condizione, "PRONTA_CONSEGNA");
+  assert.equal(r[0].dati?.descrizione, 'Con "tendalino"; nuovo');
+  assert.match(r[1].errore!, /marchio/);
+  assert.equal(r[2].dati?.condizione, "DA_ORDINARE");
+  assert.equal(leggiCsv("a,b\n1,2").length, 2);
+});
+
+test("foto abbinate per nome file", async () => {
+  const { abbinaMezzo } = await import("../lib/vetrina/strumenti");
+  const m = [
+    { id: "1", marca: "capelli", modello: "Tempest 700" },
+    { id: "2", marca: "capelli", modello: "Tempest 700 Open" },
+    { id: "3", marca: "yamaha", modello: "F150" },
+  ];
+  assert.deepEqual(abbinaMezzo("capelli-tempest-700.jpg", m), { id: "1", ordine: 1 });
+  assert.deepEqual(abbinaMezzo("Capelli Tempest 700-3.JPG", m), { id: "1", ordine: 3 });
+  assert.deepEqual(abbinaMezzo("tempest-700-open.png", m), { id: "2", ordine: 1 });
+  assert.deepEqual(abbinaMezzo("f150-2.jpg", m), { id: "3", ordine: 2 });
+  assert.equal(abbinaMezzo("sconosciuto.jpg", m), null);
+});
