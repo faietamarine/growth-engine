@@ -71,3 +71,43 @@ export async function richiamatoAction(form: FormData) {
   revalidatePath("/dashboard");
   redirect("/dashboard");
 }
+
+/* ---------- Recensioni e consegne ---------- */
+import { cambiaTestimonial, creaTestimonial, eliminaTestimonial } from "@/features/vetrina/service";
+
+const testimonialSchema = z.object({
+  tipo: z.enum(["RECENSIONE", "CONSEGNA"]),
+  nome: z.string().trim().min(2, "Scrivi il nome (es. Marco R.)").max(60),
+  testo: z.string().trim().max(600).default(""),
+  stelle: z.preprocess((v) => Number(v), z.number().int().min(1).max(5)).default(5),
+  mezzo: z.string().trim().max(120).default(""),
+  foto: z.union([z.literal(""), z.string().uuid()]).default(""),
+});
+
+export async function creaTestimonialAction(_: import("@/components/ui/action-form").FormState, form: FormData): Promise<import("@/components/ui/action-form").FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  const raw = Object.fromEntries(form);
+  let foto = "";
+  try {
+    const a = JSON.parse(String(raw.foto || "[]"));
+    foto = Array.isArray(a) ? (a[0] ?? "") : "";
+  } catch {}
+  const p = testimonialSchema.safeParse({ ...raw, foto });
+  if (!p.success) return { errore: p.error.issues[0].message };
+  if (p.data.tipo === "RECENSIONE" && p.data.testo.length < 10) return { errore: "Scrivi il testo della recensione." };
+  if (p.data.tipo === "CONSEGNA" && !p.data.foto) return { errore: "Per una consegna serve la foto." };
+  await creaTestimonial(p.data, user);
+  revalidatePath("/mezzi/recensioni");
+  revalidatePath("/vetrina", "layout");
+  return { ok: "Salvata: è già sul sito." };
+}
+
+export async function testimonialAction(form: FormData) {
+  const user = await requireUser("contenuti:scrivi");
+  const id = uuid.parse(form.get("id"));
+  if (form.get("azione") === "elimina") await eliminaTestimonial(id, user);
+  else await cambiaTestimonial(id, form.get("azione") === "mostra", user);
+  revalidatePath("/mezzi/recensioni");
+  revalidatePath("/vetrina", "layout");
+  redirect("/mezzi/recensioni");
+}

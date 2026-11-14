@@ -351,3 +351,21 @@ export const vehicleViews = sqliteTable(
   { vehicleId: text("vehicle_id").notNull(), day: text("day").notNull(), views: integer("views").notNull().default(0) },
   (t) => [primaryKey({ columns: [t.vehicleId, t.day] })],
 );
+
+/** Recensioni dei clienti e consegne (galleria) mostrate sul sito pubblico. */
+export const testimonials = sqliteTable(
+  "testimonials",
+  {
+    id: id(),
+    tipo: text("tipo", { enum: ["RECENSIONE", "CONSEGNA"] }).notNull().default("RECENSIONE"),
+    nome: text("nome").notNull(), // "Marco R." — solo nome e iniziale del cognome
+    testo: text("testo").notNull().default(""),
+    stelle: integer("stelle").notNull().default(5),
+    mezzo: text("mezzo").notNull().default(""), // es. "Capelli Tempest 600"
+    foto: text("foto").notNull().default(""), // id in media
+    attivo: integer("attivo", { mode: "boolean" }).notNull().default(true),
+    createdAt: createdAt(),
+  },
+  (t) => [index("testimonials_tipo_idx").on(t.tipo, t.attivo)],
+);
+export type Testimonial = typeof testimonials.$inferSelect;

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
-import { getVetrinaSettings, mezziPubblici } from "@/features/vetrina/service";
+import { testimonialsPubblici, getVetrinaSettings, mezziPubblici } from "@/features/vetrina/service";
 import { getSiteSettings } from "@/features/settings/service";
 import { MARCHI } from "@/lib/brands/catalog";
 import { CATEGORIE, SEZIONI_SITO } from "@/lib/vetrina/catalog";
@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 const ONDA = "M0 40 C 120 10, 240 70, 360 40 S 600 10, 720 40 S 960 70, 1080 40 S 1320 10, 1440 40 S 1680 70, 1800 40 S 2040 10, 2160 40 S 2400 70, 2520 40 S 2760 10, 2880 40 V80 H0Z";
 
 export default async function VetrinaHome() {
-  const [v, s, tutti] = await Promise.all([getVetrinaSettings(), getSiteSettings(), mezziPubblici()]);
+  const [v, s, tutti, recensioni, consegne] = await Promise.all([getVetrinaSettings(), getSiteSettings(), mezziPubblici(), testimonialsPubblici("RECENSIONE", 6), testimonialsPubblici("CONSEGNA", 6)]);
   const per = (id: string) => tutti.filter((m) => m.condizione === id);
   const conteggio = (cat: string) => tutti.filter((m) => m.categoria === cat && m.stato === "PUBBLICATO").length;
   const fotoCategoria = (cat: string) => tutti.find((m) => m.categoria === cat && m.stato === "PUBBLICATO" && m.foto[0])?.foto[0];
@@ -184,6 +184,55 @@ export default async function VetrinaHome() {
             Trova la tua barca
           </Link>
         </section>
+
+        {recensioni.length > 0 && (
+          <section className="vt-sez" aria-labelledby="t-rec">
+            <div className="vt-sez-testa">
+              <div>
+                <h2 id="t-rec">Dicono di noi</h2>
+                <p>Le parole di chi ha scelto Faieta Marine.</p>
+              </div>
+            </div>
+            <div className="vt-griglia">
+              {recensioni.map((r) => (
+                <figure key={r.id} className="vt-box" style={{ margin: 0 }}>
+                  <div aria-label={`${r.stelle} stelle su 5`} style={{ color: "var(--giallo-s, #E0A400)", letterSpacing: 2 }}>
+                    {"★".repeat(r.stelle)}
+                  </div>
+                  <blockquote style={{ margin: "8px 0", fontSize: 15 }}>&ldquo;{r.testo}&rdquo;</blockquote>
+                  <figcaption style={{ fontSize: 13, color: "var(--muted)" }}>
+                    <b>{r.nome}</b>
+                    {r.mezzo ? ` · ${r.mezzo}` : ""}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {consegne.length > 0 && (
+          <section className="vt-sez" aria-labelledby="t-cons">
+            <div className="vt-sez-testa">
+              <div>
+                <h2 id="t-cons">Consegne</h2>
+                <p>Alcuni dei mezzi consegnati ai nostri clienti.</p>
+              </div>
+            </div>
+            <div className="vt-griglia">
+              {consegne.map((c) => (
+                <figure key={c.id} className="vt-box" style={{ margin: 0, padding: 0, overflow: "hidden" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/media/${c.foto}`} alt={c.mezzo ? `Consegna ${c.mezzo}` : "Consegna"} loading="lazy" style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }} />
+                  <figcaption style={{ padding: "10px 14px", fontSize: 13.5 }}>
+                    <b>{c.nome}</b>
+                    {c.mezzo ? ` · ${c.mezzo}` : ""}
+                    {c.testo && <span style={{ display: "block", color: "var(--muted)" }}>{c.testo}</span>}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="vt-banda" aria-labelledby="t-valuta">
           <div>

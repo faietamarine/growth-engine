@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getVetrinaSettings, mezziPubblici } from "@/features/vetrina/service";
+import { pagineLocali } from "@/lib/seo/locali";
 import { getMarchio } from "@/lib/brands/catalog";
 import { CONDIZIONI, type CategoriaId } from "@/lib/vetrina/catalog";
 import { CardMezzo } from "@/components/vetrina/card-mezzo";
@@ -95,6 +96,19 @@ export default async function CatalogoMarchio({ params, searchParams }: { params
           );
         })}
       </div>
+      {pagineLocali().some((x) => x.marca === marchio.slug) && (
+        <div className="vt-wrap" style={{ paddingBottom: 32 }}>
+          <p>
+            <b>Cerca a Pescara:</b>{" "}
+            {pagineLocali().filter((x) => x.marca === marchio.slug).map((x, i) => (
+              <span key={x.slug}>
+                {i > 0 && " · "}
+                <Link href={`/vetrina/p/${x.slug}`} style={{ color: "var(--blu)", fontWeight: 700 }}>{x.titolo}</Link>
+              </span>
+            ))}
+          </p>
+        </div>
+      )}
     </main>
   );
 }

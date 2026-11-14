@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, gte, inArray, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, media, promos, settings, vehicles, vehicleViews, type Vehicle, type User } from "@/db/schema";
+import { leads, media, promos, testimonials, type Testimonial, settings, vehicles, vehicleViews, type Vehicle, type User } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import { MODELLI_CATALOGO } from "@/lib/brands/modelli";
 import { mezzoSchema, controllaMezzo, MAX_FOTO, type MezzoInput } from "@/lib/vetrina/catalog";
@@ -48,7 +48,8 @@ export async function leggiFoto(id: string) {
 async function pulisciFoto(candidati: string[]) {
   if (!candidati.length) return;
   const [tutti, s] = await Promise.all([db.select({ foto: vehicles.foto, brochure: vehicles.brochure }).from(vehicles), getVetrinaSettings()]);
-  const usate = new Set([...tutti.flatMap((v) => [...v.foto, v.brochure]), s.bannerId, ...Object.values(s.icone ?? {})]);
+  const fotoTesti = (await db.select({ foto: testimonials.foto }).from(testimonials)).map((x) => x.foto);
+  const usate = new Set([...tutti.flatMap((v) => [...v.foto, v.brochure]), ...fotoTesti, s.bannerId, ...Object.values(s.icone ?? {})]);
   const orfane = candidati.filter((id) => !usate.has(id));
   if (orfane.length) await db.delete(media).where(inArray(media.id, orfane));
 }
@@ -345,4 +346,29 @@ export async function richiesteDaRichiamare() {
 export async function segnaRichiamato(id: string, user: User) {
   await db.update(leads).set({ calledAt: new Date() }).where(eq(leads.id, id));
   await audit(user, "lead", "lead", id, "richiamato");
+}
+
+
+/* ---------- Recensioni e consegne ---------- */
+export type TestimonialInput = { tipo: "RECENSIONE" | "CONSEGNA"; nome: string; testo: string; stelle: number; mezzo: string; foto: string };
+
+export async function elencoTestimonials() {
+  return db.select().from(testimonials).orderBy(desc(testimonials.createdAt));
+}
+export async function testimonialsPubblici(tipo: "RECENSIONE" | "CONSEGNA", limite = 6): Promise<Testimonial[]> {
+  return db.select().from(testimonials).where(and(eq(testimonials.tipo, tipo), eq(testimonials.attivo, true))).orderBy(desc(testimonials.createdAt)).limit(limite);
+}
+export async function creaTestimonial(d: TestimonialInput, user: User) {
+  const [r] = await db.insert(testimonials).values(d).returning({ id: testimonials.id });
+  await audit(user, "vetrina", "testimonial", r.id, `${d.tipo} aggiunta: ${d.nome}`);
+}
+export async function cambiaTestimonial(id: string, attivo: boolean, user: User) {
+  await db.update(testimonials).set({ attivo }).where(eq(testimonials.id, id));
+  await audit(user, "vetrina", "testimonial", id, attivo ? "mostrata" : "nascosta");
+}
+export async function eliminaTestimonial(id: string, user: User) {
+  const [t] = await db.select().from(testimonials).where(eq(testimonials.id, id));
+  await db.delete(testimonials).where(eq(testimonials.id, id));
+  if (t?.foto) await pulisciFoto([t.foto]);
+  await audit(user, "vetrina", "testimonial", id, "eliminata");
 }

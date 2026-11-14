@@ -11,6 +11,9 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
   const [stato, setStato] = useState<"idle" | "invio" | "ok">("idle");
   const [errore, setErrore] = useState<string | null>(null);
   const [campi, setCampi] = useState<Record<string, string>>({});
+  const [tipoScelto, setTipoScelto] = useState("Visita a bordo");
+  const provaPossibile = !!mezzo && mezzo.condizione !== "A catalogo";
+  const domani = (() => { const d = new Date(Date.now() + 86_400_000); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
 
   async function invia(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,6 +32,7 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
     const { nome, cognome } = dividiNome(v("nominativo"));
     const tipo = v("tipo") || "Visita a bordo";
     const risposte: Record<string, string> = { Richiesta: tipo };
+    if (tipo === "Prova in mare" && v("fascia")) risposte["Fascia oraria"] = v("fascia");
     if (v("giorno")) risposte["Giorno preferito"] = v("giorno").split("-").reverse().join("/");
     if (mezzo) {
       risposte["Annuncio"] = `/vetrina/mezzo/${mezzo.id}`;
@@ -72,11 +76,17 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
       <fieldset>
         <legend className="sr-only">Che cosa vuoi fare</legend>
         <label>
-          <input type="radio" name="tipo" value="Visita a bordo" defaultChecked />
+          <input type="radio" name="tipo" value="Visita a bordo" checked={tipoScelto === "Visita a bordo"} onChange={(e) => setTipoScelto(e.target.value)} />
           <span>Visita a bordo</span>
         </label>
+        {provaPossibile && (
+          <label>
+            <input type="radio" name="tipo" value="Prova in mare" checked={tipoScelto === "Prova in mare"} onChange={(e) => setTipoScelto(e.target.value)} />
+            <span>Prova in mare</span>
+          </label>
+        )}
         <label>
-          <input type="radio" name="tipo" value="Appuntamento in sede" />
+          <input type="radio" name="tipo" value="Appuntamento in sede" checked={tipoScelto === "Appuntamento in sede"} onChange={(e) => setTipoScelto(e.target.value)} />
           <span>Appuntamento in sede</span>
         </label>
       </fieldset>
@@ -97,8 +107,21 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
       </label>
       <label className="vt-c">
         Giorno che preferisci <span style={{ fontWeight: 500 }}>(facoltativo)</span>
-        <input type="date" name="giorno" />
+        <input type="date" name="giorno" min={domani} />
       </label>
+      {tipoScelto === "Prova in mare" && (
+        <>
+          <label className="vt-c">
+            Fascia oraria
+            <select name="fascia" defaultValue="Indifferente">
+              <option>Mattina</option>
+              <option>Pomeriggio</option>
+              <option>Indifferente</option>
+            </select>
+          </label>
+          <p style={{ margin: 0, fontSize: 13, color: "var(--muted)" }}>Giorno e orario li confermiamo noi con una chiamata, in base a meteo, mare e disponibilità.</p>
+        </>
+      )}
       <label className="vt-c">
         Messaggio <span style={{ fontWeight: 500 }}>(facoltativo)</span>
         <textarea name="messaggio" maxLength={600} />
