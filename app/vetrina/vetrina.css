@@ -229,8 +229,8 @@
 .vt-area span{position:absolute;left:18px;bottom:14px;z-index:1;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:22px}
 
 /* icone personalizzate caricate dal gestionale */
-.vt-cat-t>img.vt-ico,.vt-cat-t:hover>img.vt-ico{right:auto;bottom:auto;left:50%;top:36%;width:78%;height:auto;max-height:56%;object-fit:contain;transform:translate(-50%,-50%)}
-.vt-area>img.vt-ico,.vt-area:hover>img.vt-ico{right:auto;bottom:auto;left:50%;top:44%;width:56%;height:auto;max-height:70%;object-fit:contain;transform:translate(-50%,-50%)}
+.vt-cat-t>img.vt-ico,.vt-area>img.vt-ico{position:absolute;inset:0;width:100%;height:100%;max-height:none;object-fit:cover;transform:none;transition:transform .5s ease}
+.vt-cat-t:hover>img.vt-ico,.vt-area:hover>img.vt-ico{transform:scale(1.07)}
 
 /* preferiti e confronto */
 .vt-card-wrap{position:relative;display:flex;min-width:0}

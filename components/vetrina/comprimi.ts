@@ -28,11 +28,11 @@ export async function caricaFoto(file: File): Promise<string> {
   return j.id as string;
 }
 
-/** Icona di categoria: resta PNG con sfondo trasparente, lato lungo max 640px. */
+/** Immagine di una tessera di categoria: occupa tutta la cornice. Lato lungo max 1200px; PNG se leggero, altrimenti JPEG. */
 export async function caricaIcona(file: File): Promise<string> {
-  if (!/^image\/(png|jpeg|webp)$/.test(file.type)) throw new Error("Usa un file PNG (meglio), JPG o WebP.");
+  if (!/^image\/(png|jpeg|webp)$/.test(file.type)) throw new Error("Usa un file JPG, PNG o WebP.");
   const bmp = await createImageBitmap(file);
-  const scala = Math.min(1, 640 / Math.max(bmp.width, bmp.height));
+  const scala = Math.min(1, 1200 / Math.max(bmp.width, bmp.height));
   const c = document.createElement("canvas");
   c.width = Math.round(bmp.width * scala);
   c.height = Math.round(bmp.height * scala);
@@ -40,10 +40,12 @@ export async function caricaIcona(file: File): Promise<string> {
   if (!ctx) throw new Error("Impossibile elaborare l'immagine.");
   ctx.drawImage(bmp, 0, 0, c.width, c.height);
   bmp.close();
-  const blob: Blob | null = await new Promise((ok) => c.toBlob(ok, "image/png"));
+  const toBlob = (tipo: string, q?: number): Promise<Blob | null> => new Promise((ok) => c.toBlob(ok, tipo, q));
+  let blob = file.type === "image/png" ? await toBlob("image/png") : null;
+  if (!blob || blob.size > 1_400_000) blob = await toBlob("image/jpeg", 0.86);
   if (!blob) throw new Error("Impossibile elaborare l'immagine.");
   const fd = new FormData();
-  fd.set("file", new File([blob], "icona.png", { type: "image/png" }));
+  fd.set("file", new File([blob], blob.type === "image/png" ? "icona.png" : "icona.jpg", { type: blob.type }));
   const r = await fetch("/api/media", { method: "POST", body: fd });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(j.errore ?? "Caricamento non riuscito");

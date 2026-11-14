@@ -31,10 +31,15 @@ export function IconeEditor({ categorie, iniziali }: { categorie: { id: Categori
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categorie.map((c) => (
           <div key={c.id} className="rounded-xl border border-line bg-surface p-3">
-            <div className="vt" style={{ position: "relative", aspectRatio: "5/3", borderRadius: 12, overflow: "hidden", background: "linear-gradient(160deg,#0B5ED7,#062B5F)", display: "grid", placeItems: "center" }}>
-              <div style={{ width: "70%" }}>
-                <IconaCategoria id={c.id} custom={icone[c.id]} />
-              </div>
+            <div className="vt" style={{ position: "relative", aspectRatio: "4/3", borderRadius: 12, overflow: "hidden", background: "linear-gradient(160deg,#0B5ED7,#062B5F)", display: "grid", placeItems: "center" }}>
+              {icone[c.id] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={`/media/${icone[c.id]}`} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                <div style={{ width: "70%" }}>
+                  <IconaCategoria id={c.id} />
+                </div>
+              )}
             </div>
             <p className="mt-2 text-sm font-semibold">{c.nome}</p>
             <div className="mt-2 flex flex-wrap gap-2">

@@ -24,11 +24,11 @@ export default async function IconePage() {
         <div className="card text-[13px] leading-relaxed text-ink-soft">
           <p className="font-semibold text-ink">Che file caricare</p>
           <ul className="mt-1 list-disc space-y-0.5 pl-5">
-            <li><b>PNG con sfondo trasparente</b> (formato migliore). JPG e WebP vanno bene, ma il fondo resta visibile.</li>
-            <li>Misura consigliata: <b>1200 × 720 pixel</b> (proporzione 5:3), soggetto centrato con un po' di margine attorno.</li>
-            <li>Il fondo del sito è blu scuro: usa disegni bianchi o chiari.</li>
-            <li>Peso massimo circa 1,5 MB. Le immagini vengono ridotte in automatico a 640 pixel di lato.</li>
-            <li>Una tua icona ha la precedenza sulla foto del mezzo nella tessera. Con "Ripristina" torna quella di prima.</li>
+            <li>Un'immagine che <b>riempie tutta la tessera</b>, come la cornice blu: una foto o una grafica a pieno formato, senza margini attorno.</li>
+            <li>Misura consigliata: <b>1200 × 900 pixel</b> (proporzione 4:3, orizzontale). Se la proporzione è diversa viene ritagliata ai bordi, quindi tieni il soggetto al centro.</li>
+            <li>Formato: <b>JPG</b> (consigliato per le foto), PNG o WebP. Peso massimo circa 1,5 MB; viene ridotta in automatico.</li>
+            <li>Il nome della categoria e il numero di mezzi compaiono in basso sopra l'immagine: lascia il fondo un po' libero o scuro, così il testo si legge.</li>
+            <li>La tua immagine ha la precedenza sulla foto del mezzo nella tessera. Con "Ripristina" torna quella di prima.</li>
           </ul>
         </div>
         <ActionForm action={salvaIconeAction} submit="Salva icone" icon={<Save size={16} />}>
