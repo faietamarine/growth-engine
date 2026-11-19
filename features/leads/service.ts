@@ -29,7 +29,7 @@ export async function createLeadFromInput(input: LeadInput, ip?: string) {
   // Il reparto della campagna prevale su quello della landing e su quello dichiarato dal form.
   const reparto = camp?.reparto ?? landing?.reparto ?? input.reparto;
   const variant = landing?.abTest?.attivo ? (input.variante ?? "A") : null;
-  const { score } = scoreLead({ reparto, email: input.email, interesse: input.interesse, budget: input.budget, tempistica: input.tempistica, zona: input.zona, messaggio: input.messaggio, consensoMarketing: input.consensoMarketing });
+  const { score } = scoreLead({ reparto, email: input.email, interesse: input.interesse, budget: input.budget, tempistica: input.tempistica, zona: input.zona, messaggio: input.messaggio, consensoMarketing: input.consensoMarketing, finanziamento: input.risposte?.Pagamento === "Finanziamento", permuta: !!input.risposte?.Permuta });
   const minScore = await getMinScore();
 
   const [row] = await db

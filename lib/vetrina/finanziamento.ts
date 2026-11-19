@@ -1,7 +1,10 @@
 import { z } from "zod";
 
 /*
- * Esempio di finanziamento mostrato nella scheda del mezzo.
+ * Finanziamento. Sul sito NON si mostrano rate o tassi: il mezzo nautico si finanzia solo in sede, quindi il sito
+ * raccoglie le preferenze del cliente (acconto, rata, durata) e il venditore richiama con una proposta su misura.
+ * Il calcolo qui sotto serve al calcolatore interno dell'app (telefonata, banco in sede).
+ * Riferimenti per qualsiasi pubblicità con cifre:
  * Pubblicità del credito ai consumatori (art. 123 TUB e disposizioni CICR in vigore dal 20/11/2026):
  * se si mostra una rata o un tasso servono, con un esempio rappresentativo, tasso (fisso), importo totale del credito,
  * TAEG, durata, prezzo in contanti e anticipo, importo totale dovuto e rata, i contatti del finanziatore, l'avviso
@@ -66,8 +69,7 @@ export const finanziamentoSchema = z
     validoFino: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).default(""),
   })
   .superRefine((f, ctx) => {
-    if (f.attivo && (!f.finanziaria || !f.contatti)) ctx.addIssue({ code: "custom", message: "Per attivarlo servono il nome della finanziaria e un suo contatto (lo chiede la legge)." });
-    if (f.attivo && f.tan <= 0) ctx.addIssue({ code: "custom", message: "Indica il TAN dell'offerta della finanziaria." });
+    if (f.attivo && (!f.finanziaria || !f.contatti)) ctx.addIssue({ code: "custom", message: "Per proporlo sul sito servono il nome della finanziaria e un suo contatto (lo chiede la legge sulla pubblicità del credito)." });
     if (f.anticipoPredefinito < f.anticipoMinimo) ctx.addIssue({ code: "custom", message: "L'anticipo proposto non può essere sotto il minimo." });
   })
   .transform((f) => ({ ...f, durate: [...new Set(f.durate)].sort((a, b) => a - b), durataPredefinita: f.durate.includes(f.durataPredefinita) ? f.durataPredefinita : f.durate[f.durate.length - 1] }));
@@ -117,9 +119,17 @@ export function esempioFinanziamento(prezzo: number, anticipoPerc: number, mesi:
   return { prezzo, anticipo, credito, mesi, rata, tan: f.tan, taeg, totaleDovuto, costoCredito: arrot(totaleDovuto - credito) };
 }
 
-/** Il finanziamento si mostra solo se attivo, non scaduto e con credito sopra il minimo. */
+/** Il riquadro "Vuoi finanziarlo?" compare se attivo, non scaduto e (con prezzo noto) sopra l'importo minimo. */
 export function finanziamentoMostrabile(f: ImpostazioniFinanziamento, prezzo: number | null, oggi: string) {
-  if (!f.attivo || !f.finanziaria || !f.contatti || f.tan <= 0 || prezzo == null) return false;
+  if (!f.attivo || !f.finanziaria || !f.contatti) return false;
   if (f.validoFino && f.validoFino < oggi) return false;
-  return prezzo * (1 - f.anticipoMinimo / 100) >= f.importoMinimo;
+  return prezzo == null || prezzo * (1 - f.anticipoMinimo / 100) >= f.importoMinimo;
 }
+
+/** Domande sul sito (a pulsanti, facoltative): nessun dato su reddito o lavoro, quelli li raccoglie la finanziaria in sede. */
+export const DOMANDE_FINANZIAMENTO = {
+  pagamento: ["Unica soluzione", "Finanziamento", "Non so ancora"],
+  acconto: ["Nessuno", "Circa 10-20%", "30% o più", "Ho una permuta"],
+  rata: ["Fino a 300 €", "300-600 €", "600-1.000 €", "Oltre 1.000 €"],
+  durata: ["36 mesi", "60 mesi", "84 mesi", "Consigliatemi voi"],
+} as const;

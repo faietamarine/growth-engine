@@ -118,7 +118,7 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
                 <FormAvviso cosa={nome} mezzoId={m.id} versioneInformativa={s.versioneInformativa} />
               </>
             ) : (
-              <SceltaAzione mezzo={rif} aCatalogo={aCatalogo} whatsapp={v.whatsapp} telefono={v.telefono} versioneInformativa={s.versioneInformativa} />
+              <SceltaAzione mezzo={rif} aCatalogo={aCatalogo} whatsapp={v.whatsapp} telefono={v.telefono} versioneInformativa={s.versioneInformativa} finanziamento={mostraFin} />
             )}
           </div>
           {!venduto && (
@@ -138,7 +138,7 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
           )}
         </aside>
         <div className="vt-s-info">
-          {mostraFin && m.prezzo != null && <FinanziamentoMezzo prezzo={m.prezzo} f={v.finanziamento} fine={v.finanziamento.validoFino || null} />}
+          {mostraFin && <FinanziamentoMezzo finanziaria={v.finanziamento.finanziaria} contatti={v.finanziamento.contatti} fine={v.finanziamento.validoFino || null} />}
           {m.descrizione && (
             <div className="vt-box">
               <h2 style={{ fontSize: 20, marginBottom: 10, color: "var(--blu-scuro)" }}>Descrizione</h2>

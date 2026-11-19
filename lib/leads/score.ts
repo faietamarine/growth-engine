@@ -13,6 +13,8 @@ import type { Reparto } from "@/db/schema";
  *  - messaggio ≥ 20 caratteri  +10         +10
  *  - consenso marketing        +10         +10
  *  - presente a un evento      +25         +25 (incontrato di persona: check-in o raccolto sul posto)
+ *  - finanziamento richiesto   +15          —  (ha già pensato a come pagare: acconto, rata, durata)
+ *  - permuta indicata          +10          —
  *  Massimo (tetto)             100         100
  */
 export type ScoreInput = {
@@ -26,6 +28,9 @@ export type ScoreInput = {
   consensoMarketing?: boolean;
   /** Il cliente si è presentato a un evento (check-in) o è stato registrato di persona dallo staff. */
   presenteEvento?: boolean;
+  /** Dalle risposte del sito: ha scelto "Finanziamento" o indicato una permuta. */
+  finanziamento?: boolean;
+  permuta?: boolean;
 };
 
 const PUNTI_TEMPI: Record<string, number> = {
@@ -54,6 +59,8 @@ export function scoreLead(i: ScoreInput): { score: number; dettaglio: ScoreDetai
   add((i.messaggio?.trim().length ?? 0) >= 20, 10, "Messaggio dettagliato");
   add(!!i.consensoMarketing, 10, "Consenso marketing");
   add(!!i.presenteEvento, 25, "Presente all'evento");
+  add(!service && !!i.finanziamento, 15, "Vuole finanziare (acconto, rata, durata)");
+  add(!service && !!i.permuta, 10, "Ha un mezzo in permuta");
   const score = Math.min(100, d.reduce((s, x) => s + x.punti, 0));
   return { score, dettaglio: d };
 }

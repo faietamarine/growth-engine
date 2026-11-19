@@ -75,7 +75,7 @@ export function MezzoFields({ m }: { m?: Partial<Vehicle> }) {
       </Campo>
       <label className="flex items-center gap-2 text-[13px] font-medium">
         <input type="checkbox" name="finanziabile" defaultChecked={m?.finanziabile ?? true} />
-        Mostra l&apos;esempio di finanziamento nella scheda
+        Proponi il finanziamento nella scheda (&quot;Vuoi finanziarlo?&quot;)
       </label>
       <Campo id="lunghezza" label="Lunghezza in metri" optional>
         <input id="lunghezza" name="lunghezza" inputMode="decimal" className="input" defaultValue={m?.lunghezza ?? ""} placeholder="7,5" />

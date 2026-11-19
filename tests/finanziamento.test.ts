@@ -32,13 +32,24 @@ test("si mostra solo se completo, valido e sopra il minimo", () => {
   assert.equal(finanziamentoMostrabile({ ...f, contatti: "" }, 20000, "2026-11-19"), false);
   assert.equal(finanziamentoMostrabile({ ...f, validoFino: "2026-11-18" }, 20000, "2026-11-19"), false);
   assert.equal(finanziamentoMostrabile(f, 2000, "2026-11-19"), false);
-  assert.equal(finanziamentoMostrabile(f, null, "2026-11-19"), false);
+  assert.equal(finanziamentoMostrabile(f, null, "2026-11-19"), true); // prezzo su richiesta: le domande servono lo stesso
+  assert.equal(finanziamentoMostrabile({ ...f, tan: 0 }, 20000, "2026-11-19"), true); // il sito non mostra tassi
 });
 
 test("impostazioni: senza finanziaria non si attiva", () => {
   const base = { tan: "7,9", durate: "36, 60, 84", durataPredefinita: "60", anticipoMinimo: "10", anticipoPredefinito: "20", importoMinimo: "3000", impostaBollo: "16" };
   assert.equal(finanziamentoSchema.safeParse({ ...base, attivo: "on" }).success, false);
+  assert.equal(finanziamentoSchema.safeParse({ ...base, tan: "", attivo: "on", finanziaria: "X Spa", contatti: "x.it" }).success, true);
   const ok = finanziamentoSchema.parse({ ...base, attivo: "on", finanziaria: "X Spa", contatti: "x.it" });
   assert.deepEqual(ok.durate, [36, 60, 84]);
   assert.equal(ok.tan, 7.9);
+});
+
+import { scoreLead } from "../lib/leads/score";
+test("chi vuole finanziare o ha una permuta è un contatto più caldo", () => {
+  const base = { reparto: "VENDITA" as const, interesse: "Offerta: Joker Clubman 26", budget: 68900, tempistica: "Entro 3 mesi" };
+  assert.equal(scoreLead(base).score, 65);
+  assert.equal(scoreLead({ ...base, finanziamento: true }).score, 80);
+  assert.equal(scoreLead({ ...base, finanziamento: true, permuta: true }).score, 90);
+  assert.equal(scoreLead({ reparto: "SERVICE", finanziamento: true }).score, 0);
 });

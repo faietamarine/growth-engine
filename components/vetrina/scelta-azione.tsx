@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CalendarCheck, FileText, Phone } from "lucide-react";
 import { FormAppuntamento, type MezzoRif } from "./form-appuntamento";
-import { FormOfferta } from "./form-offerta";
+import { EVENTO_FINANZIAMENTO, FormOfferta } from "./form-offerta";
 import { IconaWhatsApp } from "./whatsapp";
 
 /**
@@ -11,8 +11,14 @@ import { IconaWhatsApp } from "./whatsapp";
  * chi vuole solo il prezzo chiede l'offerta su WhatsApp, chi è pronto prenota prova o visita, chi vuole parlare chiama.
  * Per i modelli a catalogo l'azione principale è il preventivo d'ordine.
  */
-export function SceltaAzione({ mezzo, aCatalogo, whatsapp, telefono, versioneInformativa }: { mezzo: MezzoRif; aCatalogo: boolean; whatsapp: string; telefono: string; versioneInformativa: string }) {
+export function SceltaAzione({ mezzo, aCatalogo, whatsapp, telefono, versioneInformativa, finanziamento }: { mezzo: MezzoRif; aCatalogo: boolean; whatsapp: string; telefono: string; versioneInformativa: string; finanziamento?: boolean }) {
   const [scelta, setScelta] = useState<"offerta" | "visita">("offerta");
+  // Dal riquadro "Vuoi finanziarlo?" si torna sempre al modulo dell'offerta.
+  useEffect(() => {
+    const h = () => setScelta("offerta");
+    window.addEventListener(EVENTO_FINANZIAMENTO, h);
+    return () => window.removeEventListener(EVENTO_FINANZIAMENTO, h);
+  }, []);
   const tel = `tel:${telefono.replace(/[^\d+]/g, "")}`;
   return (
     <div className="vt-scelta" id="offerta">
@@ -31,7 +37,7 @@ export function SceltaAzione({ mezzo, aCatalogo, whatsapp, telefono, versioneInf
         </a>
       </div>
       {scelta === "offerta" ? (
-        <FormOfferta mezzo={mezzo} tipo={aCatalogo ? "ordine" : "offerta"} whatsapp={whatsapp} telefono={telefono} versioneInformativa={versioneInformativa} />
+        <FormOfferta mezzo={mezzo} tipo={aCatalogo ? "ordine" : "offerta"} whatsapp={whatsapp} telefono={telefono} versioneInformativa={versioneInformativa} finanziamento={finanziamento} />
       ) : (
         <FormAppuntamento mezzo={mezzo} versioneInformativa={versioneInformativa} telefono={telefono} />
       )}

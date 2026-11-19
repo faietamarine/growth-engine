@@ -447,3 +447,18 @@
   .vt-scelta-tab button,.vt-scelta-tab a{font-size:13px;padding:6px;gap:4px}
   .vt-fin-esito b{font-size:21px}
 }
+
+/* Domande sul pagamento nel modulo dell'offerta */
+.vt-pagamento{display:grid;gap:12px;background:var(--blu-chiaro);border-radius:14px;padding:12px}
+.vt-chip-gruppo{display:grid;gap:6px}
+.vt-chip-gruppo>span{font-size:13px;font-weight:700;color:var(--muted)}
+.vt-chip-gruppo>div{display:flex;flex-wrap:wrap;gap:6px}
+.vt-chip-gruppo button{border:2px solid var(--linea);background:#fff;border-radius:999px;min-height:40px;padding:6px 14px;font:700 14px Inter,sans-serif;color:var(--blu-scuro);cursor:pointer}
+.vt-chip-gruppo button.on{border-color:var(--blu);background:var(--blu);color:#fff}
+.vt-fin-testa{display:flex;gap:14px;align-items:flex-start}
+.vt-fin-testa svg{color:var(--blu);flex:none;margin-top:2px}
+.vt-fin-testa p{margin:4px 0 0;color:var(--muted);font-size:15px;line-height:1.5}
+.vt-fin-testa h2{margin:0}
+.vt-fin-punti{list-style:none;padding:0;margin:14px 0 16px;display:grid;gap:6px}
+.vt-fin-punti li{font-size:14.5px;font-weight:600}
+.vt-fin-punti li::before{content:"✓ ";color:#0B7A41;font-weight:800}

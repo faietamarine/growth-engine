@@ -5,30 +5,43 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { dividiNome, inviaLead } from "./invia-lead";
 import { IconaWhatsApp } from "./whatsapp";
 import type { MezzoRif } from "./form-appuntamento";
+import { DOMANDE_FINANZIAMENTO } from "@/lib/vetrina/finanziamento";
 
-export type SceltaFinanziamento = { anticipo: number; mesi: number; rata: number; taeg: number };
 export const EVENTO_FINANZIAMENTO = "vt-finanziamento";
 
-const eur = (n: number) => n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always" } as Intl.NumberFormatOptions);
+/** Gruppo di pulsanti a scelta singola (più veloce da toccare di un menu a tendina). */
+function Scelte({ nome, opzioni, valore, onCambia }: { nome: string; opzioni: readonly string[]; valore: string; onCambia: (v: string) => void }) {
+  return (
+    <div className="vt-chip-gruppo" role="radiogroup" aria-label={nome}>
+      <span>{nome}</span>
+      <div>
+        {opzioni.map((o) => (
+          <button key={o} type="button" role="radio" aria-checked={valore === o} className={valore === o ? "on" : ""} onClick={() => onCambia(valore === o ? "" : o)}>
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /**
  * Due varianti: "offerta" (pronta consegna e usato: offerta personalizzata su WhatsApp)
  * e "ordine" (modelli a catalogo: preventivo per l'ordine con allestimento e consegna desiderata).
  * Prima crea il lead, poi offre il pulsante per scrivere subito su WhatsApp.
  */
-export function FormOfferta({ mezzo, tipo, whatsapp, telefono, versioneInformativa }: { mezzo: MezzoRif; tipo: "offerta" | "ordine"; whatsapp: string; telefono: string; versioneInformativa: string }) {
+export function FormOfferta({ mezzo, tipo, whatsapp, telefono, versioneInformativa, finanziamento }: { mezzo: MezzoRif; tipo: "offerta" | "ordine"; whatsapp: string; telefono: string; versioneInformativa: string; /** domande sul pagamento (se il finanziamento è proposto sul sito) */ finanziamento?: boolean }) {
   const [stato, setStato] = useState<"idle" | "invio" | "ok">("idle");
   const [errore, setErrore] = useState<string | null>(null);
   const [campi, setCampi] = useState<Record<string, string>>({});
-  const [fin, setFin] = useState<SceltaFinanziamento | null>(null);
-  const [vuoleFin, setVuoleFin] = useState(false);
+  const [pagamento, setPagamento] = useState("");
+  const [acconto, setAcconto] = useState("");
+  const [rata, setRata] = useState("");
+  const [durata, setDurata] = useState("");
 
-  // "Voglio questa rata" nel riquadro del finanziamento compila questo modulo.
+  // "Calcoliamo la tua rata" nel riquadro del finanziamento sceglie già "Finanziamento".
   useEffect(() => {
-    const h = (e: Event) => {
-      setFin((e as CustomEvent<SceltaFinanziamento>).detail);
-      setVuoleFin(true);
-    };
+    const h = () => setPagamento("Finanziamento");
     window.addEventListener(EVENTO_FINANZIAMENTO, h);
     return () => window.removeEventListener(EVENTO_FINANZIAMENTO, h);
   }, []);
@@ -57,7 +70,12 @@ export function FormOfferta({ mezzo, tipo, whatsapp, telefono, versioneInformati
     if (ordine && v("allestimento")) risposte["Allestimento richiesto"] = v("allestimento");
     if (ordine && v("consegna")) risposte["Consegna desiderata"] = v("consegna");
     if (fd.get("permuta") === "on") risposte["Permuta"] = v("permutaCosa") || "Sì, da valutare";
-    if (vuoleFin) risposte["Finanziamento"] = fin ? `Anticipo ${eur(fin.anticipo)} €, ${fin.mesi} rate da ${eur(fin.rata)} € (TAEG ${fin.taeg.toLocaleString("it-IT")}%)` : "Sì, da valutare";
+    if (pagamento) risposte["Pagamento"] = pagamento;
+    if (pagamento === "Finanziamento") {
+      if (acconto) risposte["Acconto"] = acconto;
+      if (rata) risposte["Rata desiderata al mese"] = rata;
+      if (durata) risposte["Durata desiderata"] = durata;
+    }
     setStato("invio");
     const r = await inviaLead({
       nome,
@@ -130,13 +148,21 @@ export function FormOfferta({ mezzo, tipo, whatsapp, telefono, versioneInformati
         <input type="checkbox" name="permuta" />
         <span>Ho un mezzo da dare in permuta</span>
       </label>
-      <label className="vt-scelta-si">
-        <input type="checkbox" checked={vuoleFin} onChange={(e) => setVuoleFin(e.target.checked)} />
-        <span>
-          Mi interessa il finanziamento
-          {vuoleFin && fin ? ` · ${fin.mesi} rate da ${eur(fin.rata)} € (TAEG ${fin.taeg.toLocaleString("it-IT")}%)` : ""}
-        </span>
-      </label>
+      {finanziamento && (
+        <div className="vt-pagamento">
+          <Scelte nome="Come pensi di pagare? (facoltativo)" opzioni={DOMANDE_FINANZIAMENTO.pagamento} valore={pagamento} onCambia={setPagamento} />
+          {pagamento === "Finanziamento" && (
+            <>
+              <Scelte nome="Acconto" opzioni={DOMANDE_FINANZIAMENTO.acconto} valore={acconto} onCambia={setAcconto} />
+              <Scelte nome="Quanto vorresti pagare al mese" opzioni={DOMANDE_FINANZIAMENTO.rata} valore={rata} onCambia={setRata} />
+              <Scelte nome="In quanto tempo" opzioni={DOMANDE_FINANZIAMENTO.durata} valore={durata} onCambia={setDurata} />
+              <p className="vt-nota-form" style={{ textAlign: "left" }}>
+                Ti richiamiamo con una proposta di rata su misura. La richiesta di finanziamento si fa in sede, salvo approvazione della finanziaria.
+              </p>
+            </>
+          )}
+        </div>
+      )}
       <div className="vt-trappola" aria-hidden>
         <label>
           Non compilare

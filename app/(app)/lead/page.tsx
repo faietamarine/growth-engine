@@ -98,6 +98,8 @@ export default async function LeadPage({ searchParams }: { searchParams: Promise
                         </span>
                       </Badge>
                       {vista !== "coda" && <Badge tone={LEAD_STATUS_UI[l.status].tone}>{LEAD_STATUS_UI[l.status].label}</Badge>}
+                      {l.answers?.Pagamento === "Finanziamento" && <Badge tone="warn">Finanziamento</Badge>}
+                      {l.answers?.Permuta && <Badge tone="info">Permuta</Badge>}
                     </div>
                     <p className="mt-0.5 truncate text-[13px] text-ink">{l.interest || "Interesse non indicato"}</p>
                     {(() => {
