@@ -64,6 +64,8 @@ export const mezzoSchema = z.object({
   prezzo: numero(0, 50_000_000),
   prezzoListino: numero(0, 50_000_000),
   promo: z.string().trim().max(40).default(""),
+  incluso: z.string().trim().max(1000).default(""),
+  finanziabile: z.preprocess((v) => v === "on" || v === "true" || v === true, z.boolean()).default(false),
   promoFine: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).default(""),
   lunghezza: numero(1, 200),
   motore: z.string().trim().max(120).default(""),

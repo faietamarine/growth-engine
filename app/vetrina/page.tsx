@@ -91,10 +91,10 @@ export default async function VetrinaHome() {
         )}
         <div className={`vt-wrap vt-hero-inner${nastro.length ? " vt-hero-2col" : ""}`}>
           <div className="vt-hero-testo">
-            <h1 className="vt-reveal">
+            <h1 className="vt-reveal vt-o-tit">
               <span className="vt-hero-marca">{HERO_DEFAULT.titolo}</span> {v.heroFrase || HERO_DEFAULT.frase}
             </h1>
-              <div className="vt-dealer vt-reveal" aria-label="Dealer ufficiale dei marchi" style={{ animationDelay: ".05s" }}>
+              <div className="vt-dealer vt-reveal vt-o-dealer" aria-label="Dealer ufficiale dei marchi" style={{ animationDelay: ".05s" }}>
                 <span className="vt-dealer-label">Dealer ufficiale</span>
                 <ul className="vt-dealer-logo">
                   {MARCHI.map((m) => (
@@ -106,15 +106,15 @@ export default async function VetrinaHome() {
                   ))}
                 </ul>
               </div>
-            <p className="vt-sotto vt-reveal" style={{ animationDelay: ".1s" }}>
+            <p className="vt-sotto vt-reveal vt-o-sotto" style={{ animationDelay: ".1s" }}>
               {v.heroSotto || HERO_DEFAULT.sotto}
             </p>
             {v.googleVoto && (
-              <div className="vt-hero-prova vt-reveal" style={{ animationDelay: ".15s" }}>
+              <div className="vt-hero-prova vt-reveal vt-o-prova" style={{ animationDelay: ".15s" }}>
                 <BollinoGoogle v={v} chiaro />
               </div>
             )}
-            <div className="vt-hero-cta vt-reveal" style={{ animationDelay: ".2s" }}>
+            <div className="vt-hero-cta vt-reveal vt-o-cta" style={{ animationDelay: ".2s" }}>
               <Link href="#appuntamento" className="vt-btn vt-btn-giallo">
                 Prenota la tua visita
               </Link>
@@ -124,7 +124,7 @@ export default async function VetrinaHome() {
             </div>
           </div>
           {nastro.length > 0 && (
-            <div className="vt-hero-nastro vt-reveal" style={{ animationDelay: ".15s" }}>
+            <div className="vt-hero-nastro vt-reveal vt-o-nastro" style={{ animationDelay: ".15s" }}>
               <NastroPronte voci={nastro} />
             </div>
           )}
@@ -237,8 +237,8 @@ export default async function VetrinaHome() {
         <section className="vt-sez" id="marchi">
           <div className="vt-sez-testa">
             <div>
-              <h2>I nostri marchi</h2>
-              <p className="vt-sub">Dealer ufficiale. Tocca un marchio: modelli a catalogo, pronte consegne e usato.</p>
+              <h2>Catalogo da ordinare</h2>
+              <p className="vt-sub">Non lo trovi in pronta consegna? Lo ordiniamo per te, con il motore e l&apos;allestimento che vuoi. Scegli il marchio.</p>
             </div>
           </div>
           <div className="vt-marchi">

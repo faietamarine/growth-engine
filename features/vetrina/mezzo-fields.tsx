@@ -70,6 +70,13 @@ export function MezzoFields({ m }: { m?: Partial<Vehicle> }) {
           </Campo>
         </div>
       </div>
+      <Campo id="incluso" label="Cosa comprende il prezzo" optional help="Una voce per riga: motore, approntamento, trasporto, IVA… Il cliente vede subito cosa paga.">
+        <textarea id="incluso" name="incluso" rows={3} maxLength={1000} className="input sm:col-span-2" defaultValue={m?.incluso ?? ""} placeholder={"Motore Yamaha F200 XCA\nApprontamento e collaudo\nIVA inclusa"} />
+      </Campo>
+      <label className="flex items-center gap-2 text-[13px] font-medium">
+        <input type="checkbox" name="finanziabile" defaultChecked={m?.finanziabile ?? true} />
+        Mostra l&apos;esempio di finanziamento nella scheda
+      </label>
       <Campo id="lunghezza" label="Lunghezza in metri" optional>
         <input id="lunghezza" name="lunghezza" inputMode="decimal" className="input" defaultValue={m?.lunghezza ?? ""} placeholder="7,5" />
       </Campo>

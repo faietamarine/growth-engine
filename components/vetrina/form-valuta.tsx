@@ -7,7 +7,7 @@ import { dividiNome, inviaLead } from "./invia-lead";
 const CONDIZIONI_USATO = ["Ottime", "Buone", "Da sistemare"];
 
 /** "Valuta la tua barca": descrive il mezzo e lascia i recapiti. Arriva come lead di permuta/acquisto usato. */
-export function FormValuta({ marche, versioneInformativa, telefono }: { marche: string[]; versioneInformativa: string; telefono: string }) {
+export function FormValuta({ marche, versioneInformativa, telefono, perMezzo }: { marche: string[]; versioneInformativa: string; telefono: string; /** permuta su questo mezzo del sito */ perMezzo?: { id: string; nome: string } }) {
   const [stato, setStato] = useState<"idle" | "invio" | "ok">("idle");
   const [errore, setErrore] = useState<string | null>(null);
 
@@ -23,6 +23,10 @@ export function FormValuta({ marche, versioneInformativa, telefono }: { marche: 
     const { nome, cognome } = dividiNome(v("nominativo"));
     const descr = `${v("marca")} ${v("modello")}${v("anno") ? ` ${v("anno")}` : ""}`.trim();
     const risposte: Record<string, string> = { Richiesta: v("scopo") || "Valutazione", Barca: descr };
+    if (perMezzo) {
+      risposte["Permuta per"] = perMezzo.nome;
+      risposte["Annuncio"] = `/vetrina/mezzo/${perMezzo.id}`;
+    }
     for (const [k, c] of [["lunghezza", "Lunghezza (m)"], ["motore", "Motore"], ["ore", "Ore motore"], ["condizioni", "Condizioni"], ["richiesta", "Prezzo desiderato (€)"]] as const) if (v(k)) risposte[c] = v(k);
     setStato("invio");
     const r = await inviaLead({

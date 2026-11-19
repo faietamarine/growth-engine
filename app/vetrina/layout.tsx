@@ -28,14 +28,18 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
   const [s, v, promo, eventi, articoli] = await Promise.all([getSiteSettings(), getVetrinaSettings(), promoInCorso(), eventiInArrivo(1), postPubblici(1)]);
   // Blog ed Eventi compaiono nel menu solo quando hanno contenuti: una sezione vuota fa sembrare l'azienda ferma.
   const voci = [
-    ...SEZIONI_SITO.map((c) => ({ href: `/vetrina/mezzi?condizione=${c.slug}`, nome: c.id === "USATO" ? "Usato" : c.titolo })),
-    { href: "/vetrina#marchi", nome: "Marchi" },
-    ...(eventi.length ? [{ href: "/vetrina/eventi", nome: "Eventi" }] : []),
-    ...(articoli.length ? [{ href: "/vetrina/blog", nome: "Blog" }] : []),
+    // Al massimo 5 voci: ogni link in più è un'occasione per andarsene senza contattarci.
+    ...SEZIONI_SITO.map((c) => ({ href: `/vetrina/mezzi?condizione=${c.slug}`, nome: c.id === "USATO" ? "Usato" : "Pronta consegna" })),
+    { href: "/vetrina#marchi", nome: "Catalogo" },
+    ...(eventi.length ? [{ href: "/vetrina/eventi", nome: "Prove in mare" }] : []),
     { href: "/vetrina/servizi", nome: "Assistenza" },
-    { href: "/vetrina/valuta", nome: "Valuta il tuo usato" },
   ];
-  const vociMobile = [...voci, { href: "/vetrina/quiz", nome: "Trova la tua barca" }];
+  const vociMobile = [
+    ...voci,
+    { href: "/vetrina/valuta", nome: "Valuta il tuo usato" },
+    { href: "/vetrina/quiz", nome: "Trova il tuo mezzo" },
+    ...(articoli.length ? [{ href: "/vetrina/blog", nome: "Blog" }] : []),
+  ];
   const tel = v.telefono.replace(/[^\d+]/g, "");
   const telHref = `tel:${tel.startsWith("+") ? tel : `+39${tel}`}`;
   const azienda = {

@@ -1,4 +1,5 @@
 import "server-only";
+import { FINANZIAMENTO_VUOTO, type ImpostazioniFinanziamento } from "@/lib/vetrina/finanziamento";
 import { and, desc, eq, gte, inArray, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { siteEvents, leads, media, posts, promos, testimonials, type Testimonial, settings, vehicles, vehicleViews, type Vehicle, type User } from "@/db/schema";
@@ -25,6 +26,8 @@ export type VetrinaSettings = {
   googleLink: string;
   /** Foto illustrativa per ogni reparto della pagina Assistenza (id reparto → id foto). */
   fotoServizi: Record<string, string>;
+  /** Esempio di finanziamento nelle schede (dati dell'offerta della finanziaria convenzionata). */
+  finanziamento: ImpostazioniFinanziamento;
 };
 export const VETRINA_DEFAULT: VetrinaSettings = {
   bannerId: "",
@@ -39,11 +42,13 @@ export const VETRINA_DEFAULT: VetrinaSettings = {
   googleNumero: null,
   googleLink: "",
   fotoServizi: {},
+  finanziamento: FINANZIAMENTO_VUOTO,
 };
 
 export async function getVetrinaSettings(): Promise<VetrinaSettings> {
   const row = await db.query.settings.findFirst({ where: eq(settings.key, "vetrina") });
-  return { ...VETRINA_DEFAULT, ...((row?.value as Partial<VetrinaSettings>) ?? {}) };
+  const salvate = (row?.value as Partial<VetrinaSettings>) ?? {};
+  return { ...VETRINA_DEFAULT, ...salvate, finanziamento: { ...FINANZIAMENTO_VUOTO, ...(salvate.finanziamento ?? {}) } };
 }
 
 export async function saveVetrinaSettings(s: VetrinaSettings, user: User) {
@@ -94,6 +99,8 @@ const valori = (d: MezzoInput) => ({
   prezzo: d.prezzo ?? null,
   prezzoListino: d.prezzoListino ?? null,
   promo: d.promo,
+  incluso: d.incluso,
+  finanziabile: d.finanziabile,
   promoFine: d.promoFine || null,
   lunghezza: d.lunghezza ?? null,
   motore: d.motore,

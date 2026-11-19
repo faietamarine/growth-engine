@@ -7,19 +7,30 @@ import { Ship } from "lucide-react";
 export type VoceNastro = { id: string; marca: string; modello: string; foto: string | null; prezzo: string; listino: string | null; risparmio: string | null; etichetta: string };
 
 /**
- * Annunci di pronta consegna che scorrono in verticale nel banner (uno alla volta, ogni 3,5 secondi).
- * Si ferma quando il mouse o il dito ci sono sopra; chi ha chiesto meno animazioni vede l'elenco fermo.
+ * Annunci di pronta consegna nel banner.
+ * Computer: scorrono in verticale (uno alla volta, ogni 3,5 secondi), si fermano col mouse sopra.
+ * Telefono: schede orizzontali che si sfogliano col dito, senza movimento automatico (il gesto naturale è di lato).
+ * Chi ha chiesto meno animazioni vede l'elenco fermo.
  */
 export function NastroPronte({ voci }: { voci: VoceNastro[] }) {
   const [i, setI] = useState(0);
   const [salto, setSalto] = useState(false);
   const [fermo, setFermo] = useState(false);
   const [statico, setStatico] = useState(false);
+  const [oriz, setOriz] = useState(false);
   const pausa = useRef(false);
-  const scorre = voci.length > 1 && !statico;
+  const scorre = voci.length > 1 && !statico && !oriz;
 
   useEffect(() => {
     setStatico(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    const mq = window.matchMedia("(max-width: 1099px)");
+    const agg = () => {
+      setOriz(mq.matches);
+      setI(0);
+    };
+    agg();
+    mq.addEventListener("change", agg);
+    return () => mq.removeEventListener("change", agg);
   }, []);
   useEffect(() => {
     if (!scorre) return;
@@ -42,7 +53,7 @@ export function NastroPronte({ voci }: { voci: VoceNastro[] }) {
   const elenco = scorre ? [...voci, ...voci.slice(0, 3)] : voci;
   return (
     <div
-      className={`vt-nastro${scorre ? "" : " vt-nastro-fermo"}`}
+      className={`vt-nastro${oriz ? " vt-nastro-oriz" : scorre ? "" : " vt-nastro-fermo"}`}
       onMouseEnter={() => ((pausa.current = true), setFermo(true))}
       onMouseLeave={() => ((pausa.current = false), setFermo(false))}
       onFocus={() => (pausa.current = true)}

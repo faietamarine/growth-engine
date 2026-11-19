@@ -172,3 +172,17 @@ export async function salvaFotoServiziAction(_: FormState, form: FormData): Prom
   revalidatePath("/vetrina", "layout");
   return { ok: "Foto salvate: sono già online nella pagina Assistenza." };
 }
+
+/* ---------- Finanziamento ---------- */
+import { finanziamentoSchema } from "@/lib/vetrina/finanziamento";
+
+export async function salvaFinanziamentoAction(_: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  const p = finanziamentoSchema.safeParse(Object.fromEntries(form));
+  if (!p.success) return { errore: p.error.issues[0].message };
+  const attuali = await getVetrinaSettings();
+  await saveVetrinaSettings({ ...attuali, finanziamento: p.data }, user);
+  revalidatePath("/mezzi/finanziamento");
+  revalidatePath("/vetrina", "layout");
+  return { ok: p.data.attivo ? "Salvato: l'esempio di finanziamento è nelle schede dei mezzi." : "Salvato (non visibile sul sito)." };
+}

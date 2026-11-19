@@ -318,6 +318,10 @@ export const vehicles = sqliteTable(
     /** Etichetta breve della promozione (es. "Promo inverno"); vuota = nessuna. */
     promo: text("promo").notNull().default(""),
     promoFine: text("promo_fine"), // AAAA-MM-GG, ultimo giorno della promo; vuota = senza scadenza
+    /** Cosa comprende il prezzo, una voce per riga (es. "Motore Yamaha F200", "Approntamento", "IVA"). */
+    incluso: text("incluso").notNull().default(""),
+    /** Mostra l'esempio di finanziamento nella scheda (se il finanziamento è attivo nelle impostazioni). */
+    finanziabile: integer("finanziabile", { mode: "boolean" }).notNull().default(true),
     lunghezza: real("lunghezza"), // metri
     motore: text("motore").notNull().default(""),
     ore: integer("ore"),

@@ -370,3 +370,80 @@
 .vt-rec-mini figure{margin:0;background:var(--blu-chiaro);border-radius:14px;padding:12px 14px}
 .vt-rec-mini blockquote{margin:0 0 6px;font-size:14.5px;line-height:1.5}
 .vt-rec-mini figcaption{font-size:12.5px;color:var(--muted)}
+
+/* Scheda mezzo: su telefono foto → prezzo e azione → dettagli; su computer dettagli a sinistra, colonna d'acquisto fissa a destra */
+.vt-scheda2{display:grid;gap:20px;padding:22px 0 8px;grid-template-areas:"gal" "side" "info"}
+.vt-s-gal{grid-area:gal;min-width:0}
+.vt-s-side{grid-area:side;min-width:0;display:grid;gap:14px;align-content:start}
+.vt-s-info{grid-area:info;min-width:0;display:grid;gap:20px;align-content:start}
+@media(min-width:1000px){.vt-scheda2{grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);grid-template-areas:"gal side" "info side";gap:28px 32px;align-items:start}}
+.vt-s-side h1{font-size:clamp(26px,3vw,34px);margin:2px 0 8px;color:var(--blu-scuro)}
+.vt-incluso{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.vt-incluso li{background:#E7F7EE;color:#0B6B39;font-size:13px;font-weight:700;padding:5px 10px;border-radius:999px}
+.vt-incluso li::before{content:"✓ "}
+.vt-btn-wa{background:#25D366;color:#fff}
+.vt-btn-wa:hover{background:#1FB958}
+.vt-scelta{margin-top:16px;border-top:1px solid var(--linea);padding-top:16px;scroll-margin-top:90px}
+.vt-scelta-tit{margin:0 0 10px;font:800 17px Sora,Inter,sans-serif;color:var(--blu-scuro)}
+.vt-scelta-tab{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:14px}
+.vt-scelta-tab button,.vt-scelta-tab a{display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:6px 10px;border-radius:12px;border:2px solid var(--linea);background:#fff;font:700 14px Inter,sans-serif;color:var(--blu-scuro);cursor:pointer;text-decoration:none;text-align:center;line-height:1.15}
+.vt-scelta-tab button.on{border-color:var(--blu);background:var(--blu-chiaro)}
+.vt-scelta-tab button:first-child.on svg{color:#1FB958}
+.vt-scelta-si{display:flex;gap:10px;align-items:center;font-size:14.5px;font-weight:600;color:var(--ink);background:var(--blu-chiaro);border-radius:12px;padding:10px 12px;cursor:pointer}
+.vt-scelta-si input{width:20px;height:20px;accent-color:var(--blu);flex:none}
+.vt-nota-form{margin:0;text-align:center;font-size:12.5px;color:var(--muted)}
+.vt-ok .vt-btn{margin-top:8px}
+.vt-permuta{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--muted);font-size:14px;line-height:1.4;transition:border-color .2s;border:2px solid transparent}
+.vt-permuta:hover{border-color:var(--blu)}
+.vt-permuta svg{color:var(--blu);flex:none}
+.vt-permuta b{display:block;color:var(--blu-scuro);font:800 16px Sora,Inter,sans-serif}
+.vt-permuta>span:last-child{margin-left:auto;font-size:22px;color:var(--blu)}
+
+/* Finanziamento (pubblicità del credito: rata e TAEG con la stessa evidenza) */
+.vt-fin h2{font-size:20px;margin:0 0 14px;color:var(--blu-scuro)}
+.vt-fin-controlli{display:grid;gap:14px}
+.vt-fin-controlli label{display:grid;gap:8px;font-size:14px;color:var(--muted)}
+.vt-fin-controlli b{color:var(--blu-scuro)}
+.vt-fin-controlli input[type=range]{width:100%;accent-color:var(--blu)}
+.vt-fin-durate{display:flex;flex-wrap:wrap;gap:6px}
+.vt-fin-durate button{border:2px solid var(--linea);background:#fff;border-radius:999px;padding:6px 12px;font:700 13px Inter,sans-serif;color:var(--blu-scuro);cursor:pointer}
+.vt-fin-durate button.on{border-color:var(--blu);background:var(--blu);color:#fff}
+.vt-fin-esito{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.vt-fin-esito div{background:var(--blu-chiaro);border-radius:14px;padding:12px 14px}
+.vt-fin-esito small{display:block;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.vt-fin-esito b{font:800 26px Sora,Inter,sans-serif;color:var(--blu-scuro)}
+.vt-fin-dati{display:grid;grid-template-columns:1fr;gap:0;margin:0 0 16px;font-size:14px}
+@media(min-width:600px){.vt-fin-dati{grid-template-columns:1fr 1fr;column-gap:24px}}
+.vt-fin-dati div{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--linea)}
+.vt-fin-dati dt{color:var(--muted)}
+.vt-fin-dati dd{margin:0;font-weight:700;color:var(--ink);text-align:right}
+.vt-fin-avviso{margin:14px 0 6px;font-weight:800;color:var(--ink);font-size:14.5px}
+.vt-fin-legale{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}
+
+/* Telefono: annunci in orizzontale, si sfogliano col dito (la scheda dopo si intravede) */
+@media(max-width:1099px){
+  .vt-nastro-oriz{padding:12px 0 12px 12px;--h:auto}
+  .vt-nastro-oriz .vt-nastro-testa{margin-right:12px}
+  .vt-nastro-oriz .vt-nastro-finestra{height:auto;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:14px 0 0 14px}
+  .vt-nastro-oriz .vt-nastro-finestra::-webkit-scrollbar{display:none}
+  .vt-nastro-oriz .vt-nastro-lista{flex-direction:row;transform:none!important;transition:none;padding-right:12px}
+  .vt-nastro-oriz .vt-nastro-lista li{height:96px;flex:0 0 84%;scroll-snap-align:start}
+  .vt-nastro-oriz .vt-nastro-lista li:only-child{flex-basis:calc(100% - 12px)}
+}
+/* Telefono: chi siete, fiducia, azione; poi le offerte; i marchi in fondo al banner */
+@media(max-width:1099px){
+  .vt-hero-inner.vt-hero-2col,.vt-hero-inner{display:flex;flex-direction:column;align-items:stretch;gap:0}
+  .vt-hero-testo{display:contents}
+  .vt-o-tit{order:1}
+  .vt-o-prova{order:2;margin-top:14px}
+  .vt-o-cta{order:3;margin-top:18px}
+  .vt-o-nastro{order:4;margin-top:22px}
+  .vt-o-dealer{order:5;margin-top:16px}
+  .vt-o-sotto{display:none}
+}
+@media(max-width:520px){.vt-o-cta .vt-btn{flex:1 1 100%}}
+@media(max-width:480px){
+  .vt-scelta-tab{grid-template-columns:1fr 1fr .8fr;gap:6px}
+  .vt-scelta-tab button,.vt-scelta-tab a{font-size:13px;padding:6px;gap:4px}
+  .vt-fin-esito b{font-size:21px}
+}

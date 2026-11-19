@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getVetrinaSettings } from "@/features/vetrina/service";
+import { getVetrinaSettings, mezzoPubblico } from "@/features/vetrina/service";
+import { getMarchio } from "@/lib/brands/catalog";
 import { getSiteSettings } from "@/features/settings/service";
 import { FormValuta } from "@/components/vetrina/form-valuta";
 
@@ -11,8 +12,10 @@ export const metadata: Metadata = {
   alternates: { canonical: "/vetrina/valuta" },
 };
 
-export default async function Valuta() {
-  const [s, v] = await Promise.all([getSiteSettings(), getVetrinaSettings()]);
+export default async function Valuta({ searchParams }: { searchParams: Promise<{ per?: string }> }) {
+  const { per } = await searchParams;
+  const [s, v, mezzo] = await Promise.all([getSiteSettings(), getVetrinaSettings(), per && /^[0-9a-f-]{36}$/i.test(per) ? mezzoPubblico(per) : null]);
+  const perMezzo = mezzo ? { id: mezzo.id, nome: `${getMarchio(mezzo.marca)?.nome ?? mezzo.marca} ${mezzo.modello}` } : undefined;
   const marche = ["Joker Boat", "Jeanneau", "Capelli", "Yamaha", "Invictus", "Capoforte", "Italmar", "Beneteau", "Sessa", "Zodiac", "Honda", "Suzuki", "Mercury"];
   return (
     <main>
@@ -27,7 +30,12 @@ export default async function Valuta() {
       </section>
       <div className="vt-wrap" style={{ paddingTop: 24 }}>
         <div className="vt-box" style={{ maxWidth: 640, margin: "0 auto" }}>
-          <FormValuta marche={marche} versioneInformativa={s.versioneInformativa} telefono={v.telefono} />
+          {perMezzo && (
+            <p className="vt-avviso-posti" style={{ marginBottom: 16 }}>
+              Permuta per <b>{perMezzo.nome}</b>: descrivi il tuo mezzo, ti diciamo quanto vale sull&apos;acquisto.
+            </p>
+          )}
+          <FormValuta marche={marche} versioneInformativa={s.versioneInformativa} telefono={v.telefono} perMezzo={perMezzo} />
         </div>
       </div>
     </main>
