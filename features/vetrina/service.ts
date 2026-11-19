@@ -19,6 +19,10 @@ export type VetrinaSettings = {
   /** Frase dopo "Faieta Marine." nel banner, e il sottotitolo. Vuote = testo predefinito. */
   heroFrase: string;
   heroSotto: string;
+  /** Recensioni Google della scheda: voto medio ("4,9"), numero e link. Vuoti = bollino nascosto. */
+  googleVoto: string;
+  googleNumero: number | null;
+  googleLink: string;
   /** Foto illustrativa per ogni reparto della pagina Assistenza (id reparto → id foto). */
   fotoServizi: Record<string, string>;
 };
@@ -31,6 +35,9 @@ export const VETRINA_DEFAULT: VetrinaSettings = {
   icone: {},
   heroFrase: "",
   heroSotto: "",
+  googleVoto: "",
+  googleNumero: null,
+  googleLink: "",
   fotoServizi: {},
 };
 
@@ -375,7 +382,7 @@ export async function segnaRichiamato(id: string, user: User) {
 
 
 /* ---------- Recensioni e consegne ---------- */
-export type TestimonialInput = { tipo: "RECENSIONE" | "CONSEGNA"; nome: string; testo: string; stelle: number; mezzo: string; foto: string };
+export type TestimonialInput = { tipo: "RECENSIONE" | "CONSEGNA"; nome: string; testo: string; stelle: number; mezzo: string; foto: string; fonte?: string };
 
 export async function elencoTestimonials() {
   return db.select().from(testimonials).orderBy(desc(testimonials.createdAt));
@@ -396,4 +403,22 @@ export async function eliminaTestimonial(id: string, user: User) {
   await db.delete(testimonials).where(eq(testimonials.id, id));
   if (t?.foto) await pulisciFoto([t.foto]);
   await audit(user, "vetrina", "testimonial", id, "eliminata");
+}
+
+/** Importa le recensioni Google scelte da Marco (testo identico, nome e iniziale) e, se mancano, voto e numero della scheda. */
+export async function importaRecensioniGoogle(user: User) {
+  const { RECENSIONI_GOOGLE, SCHEDA_GOOGLE } = await import("@/lib/vetrina/recensioni-google");
+  const presenti = new Set((await db.select({ nome: testimonials.nome, testo: testimonials.testo }).from(testimonials)).map((t) => `${t.nome}|${t.testo}`));
+  let n = 0;
+  // Dalla più vecchia alla più recente: in home escono prima le più recenti.
+  for (const r of [...RECENSIONI_GOOGLE].reverse()) {
+    if (presenti.has(`${r.nome}|${r.testo}`)) continue;
+    await creaTestimonial({ tipo: "RECENSIONE", nome: r.nome, testo: r.testo, stelle: 5, mezzo: "", foto: "", fonte: "GOOGLE" }, user);
+    n++;
+  }
+  const v = await getVetrinaSettings();
+  if (!v.googleVoto || !v.googleNumero || !v.googleLink) {
+    await saveVetrinaSettings({ ...v, googleVoto: v.googleVoto || SCHEDA_GOOGLE.voto, googleNumero: v.googleNumero || SCHEDA_GOOGLE.numero, googleLink: v.googleLink || SCHEDA_GOOGLE.link }, user);
+  }
+  return n;
 }

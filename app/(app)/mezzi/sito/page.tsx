@@ -38,6 +38,21 @@ export default async function SitoPage() {
                 <textarea id="heroSotto" name="heroSotto" className="input" rows={2} maxLength={280} placeholder={HERO_DEFAULT.sotto} defaultValue={s.heroSotto} />
               </Campo>
             </div>
+            <div className="space-y-3 rounded-xl border border-line p-3">
+              <p className="text-[13px] font-semibold">Recensioni Google</p>
+              <p className="text-[12px] text-ink-faint">Il bollino &quot;★ 4,9 su Google · 79 recensioni&quot; compare nel banner, nella scheda dei mezzi e sopra il modulo di prenotazione. Aggiorna voto e numero ogni tanto, copiandoli dalla scheda Google. Lascia vuoto per nasconderlo.</p>
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Campo id="googleVoto" label="Voto medio" optional>
+                  <input id="googleVoto" name="googleVoto" className="input" maxLength={3} placeholder="4,9" defaultValue={s.googleVoto} />
+                </Campo>
+                <Campo id="googleNumero" label="Numero recensioni" optional>
+                  <input id="googleNumero" name="googleNumero" inputMode="numeric" className="input" placeholder="79" defaultValue={s.googleNumero ?? ""} />
+                </Campo>
+                <Campo id="googleLink" label="Link alla scheda Google" optional>
+                  <input id="googleLink" name="googleLink" type="url" className="input" placeholder="https://maps.app.goo.gl/…" defaultValue={s.googleLink} />
+                </Campo>
+              </div>
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Campo id="telefono" label="Telefono">
                 <input id="telefono" name="telefono" className="input" required defaultValue={s.telefono} />

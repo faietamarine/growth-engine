@@ -6,7 +6,8 @@ import { ActionForm } from "@/components/ui/action-form";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { FotoUploader } from "@/components/vetrina/foto-uploader";
-import { creaTestimonialAction, testimonialAction } from "../strumenti/actions";
+import { creaTestimonialAction, importaRecensioniGoogleAction, testimonialAction } from "../strumenti/actions";
+import { Download } from "lucide-react";
 
 export const metadata = { title: "Recensioni e consegne" };
 export const dynamic = "force-dynamic";
@@ -21,6 +22,11 @@ export default async function RecensioniPage() {
       </Link>
       <PageHeader title="Recensioni e consegne" subtitle="Cosa dicono i clienti e le foto delle consegne: compaiono nella home del sito" />
       <div className="mx-auto max-w-3xl space-y-6">
+        {!lista.some((t) => t.fonte === "GOOGLE") && (
+          <ActionForm action={importaRecensioniGoogleAction} submit="Importa le 7 recensioni Google" icon={<Download size={16} />}>
+            <p className="text-[13px] text-ink-soft">Le 7 recensioni che hai scelto dalla scheda Google (4,9 ★ · 79 recensioni), copiate parola per parola con nome e iniziale. Imposta anche il bollino Google, se non c&apos;è ancora.</p>
+          </ActionForm>
+        )}
         <section>
           <h2 className="mb-2 font-display text-[16px] font-semibold">Aggiungi</h2>
           <p className="mb-2 text-[12px] text-ink-faint">Pubblica una recensione solo con il consenso del cliente e scrivi soltanto nome e iniziale del cognome (es. &quot;Marco R.&quot;). Per le consegne chiedi il permesso prima di mostrare persone in foto.</p>
@@ -41,6 +47,12 @@ export default async function RecensioniPage() {
               <label className="text-[13px] font-medium">Stelle (solo recensioni)
                 <select name="stelle" className="input mt-1" defaultValue="5">
                   {[5, 4, 3].map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </label>
+              <label className="text-[13px] font-medium">Da dove viene
+                <select name="fonte" className="input mt-1" defaultValue="">
+                  <option value="">Raccolta da noi (con consenso)</option>
+                  <option value="GOOGLE">Copiata da Google (testo identico)</option>
                 </select>
               </label>
               <label className="text-[13px] font-medium sm:col-span-2">Testo <span className="font-normal text-ink-faint">(per la consegna, una breve didascalia)</span>
@@ -67,7 +79,8 @@ export default async function RecensioniPage() {
                   <p className="flex flex-wrap items-center gap-2 font-semibold">
                     {t.nome} <Badge tone={t.tipo === "CONSEGNA" ? "info" : "neutral"}>{t.tipo === "CONSEGNA" ? "Consegna" : "Recensione"}</Badge>
                     {!t.attivo && <Badge tone="warn">Nascosta</Badge>}
-                    {t.tipo === "RECENSIONE" && <span className="inline-flex text-gold">{Array.from({ length: t.stelle }, (_, i) => <Star key={i} size={13} fill="currentColor" />)}</span>}
+                    {t.fonte === "GOOGLE" && <Badge tone="info">Google</Badge>}
+                    {t.tipo === "RECENSIONE" && t.fonte !== "GOOGLE" && <span className="inline-flex text-gold">{Array.from({ length: t.stelle }, (_, i) => <Star key={i} size={13} fill="currentColor" />)}</span>}
                   </p>
                   {t.mezzo && <p className="text-ink-soft">{t.mezzo}</p>}
                   {t.testo && <p className="mt-1">{t.testo}</p>}

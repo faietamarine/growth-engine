@@ -8,6 +8,7 @@ import { getMarchio } from "@/lib/brands/catalog";
 import { CONDIZIONI, datiVitali, euro, nomeCategoria } from "@/lib/vetrina/catalog";
 import { Galleria } from "@/components/vetrina/galleria";
 import { PrezzoMezzo } from "@/components/vetrina/prezzo-mezzo";
+import { BollinoGoogle } from "@/components/vetrina/bollino-google";
 import { AzioniMezzo } from "@/components/vetrina/azioni-mezzo";
 import { FormBrochure } from "@/components/vetrina/form-brochure";
 import { FormAvviso } from "@/components/vetrina/form-avviso";
@@ -100,6 +101,9 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
             <h1>{m.modello}</h1>
             {!venduto && <AzioniMezzo id={m.id} esteso />}
             <PrezzoMezzo m={m} grande />
+            <div style={{ margin: "10px 0 4px" }}>
+              <BollinoGoogle v={v} />
+            </div>
             {vitali.length > 0 && (
               <dl className="vt-vitali">
                 {vitali.map((d) => (

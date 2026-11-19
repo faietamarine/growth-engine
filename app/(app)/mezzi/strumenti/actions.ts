@@ -73,7 +73,7 @@ export async function richiamatoAction(form: FormData) {
 }
 
 /* ---------- Recensioni e consegne ---------- */
-import { cambiaTestimonial, creaTestimonial, eliminaTestimonial } from "@/features/vetrina/service";
+import { cambiaTestimonial, creaTestimonial, eliminaTestimonial, importaRecensioniGoogle } from "@/features/vetrina/service";
 
 const testimonialSchema = z.object({
   tipo: z.enum(["RECENSIONE", "CONSEGNA"]),
@@ -82,6 +82,7 @@ const testimonialSchema = z.object({
   stelle: z.preprocess((v) => Number(v), z.number().int().min(1).max(5)).default(5),
   mezzo: z.string().trim().max(120).default(""),
   foto: z.union([z.literal(""), z.string().uuid()]).default(""),
+  fonte: z.enum(["", "GOOGLE"]).default(""),
 });
 
 export async function creaTestimonialAction(_: import("@/components/ui/action-form").FormState, form: FormData): Promise<import("@/components/ui/action-form").FormState> {
@@ -110,4 +111,12 @@ export async function testimonialAction(form: FormData) {
   revalidatePath("/mezzi/recensioni");
   revalidatePath("/vetrina", "layout");
   redirect("/mezzi/recensioni");
+}
+
+export async function importaRecensioniGoogleAction(_: import("@/components/ui/action-form").FormState): Promise<import("@/components/ui/action-form").FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  const n = await importaRecensioniGoogle(user);
+  revalidatePath("/mezzi/recensioni");
+  revalidatePath("/vetrina", "layout");
+  return { ok: n ? `Importate ${n} recensioni Google: sono già sul sito.` : "Le recensioni Google scelte sono già presenti." };
 }

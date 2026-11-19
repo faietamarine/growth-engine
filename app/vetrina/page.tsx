@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BadgeCheck, Repeat, Search, Warehouse, Wrench } from "lucide-react";
 import { BarraPrenota } from "@/components/vetrina/barra-prenota";
+import { BollinoGoogle, accorcia } from "@/components/vetrina/bollino-google";
 import { testimonialsPubblici, getVetrinaSettings, mezziPubblici } from "@/features/vetrina/service";
 import { getSiteSettings } from "@/features/settings/service";
 import { MARCHI } from "@/lib/brands/catalog";
@@ -24,6 +25,13 @@ export default async function VetrinaHome() {
   const per = (id: string) => tutti.filter((m) => m.condizione === id);
   const conteggio = (cat: string) => tutti.filter((m) => m.categoria === cat && m.stato === "PUBBLICATO").length;
   const oggi = oggiRoma();
+  // Sopra il modulo: due recensioni Google di media lunghezza, dove il cliente decide se lasciare i dati.
+  const sopraModulo = v.googleVoto
+    ? recensioni
+        .filter((r) => r.fonte === "GOOGLE" && r.testo.length >= 90 && r.testo.length <= 340)
+        .sort((a, b) => b.testo.length - a.testo.length)
+        .slice(0, 2)
+    : [];
   // Nel banner: le pronte consegne pubblicate, prima quelle in evidenza e in promo.
   const nastro: VoceNastro[] = tutti
     .filter((m) => m.condizione === "PRONTA_CONSEGNA" && m.stato === "PUBBLICATO")
@@ -101,6 +109,11 @@ export default async function VetrinaHome() {
             <p className="vt-sotto vt-reveal" style={{ animationDelay: ".1s" }}>
               {v.heroSotto || HERO_DEFAULT.sotto}
             </p>
+            {v.googleVoto && (
+              <div className="vt-hero-prova vt-reveal" style={{ animationDelay: ".15s" }}>
+                <BollinoGoogle v={v} chiaro />
+              </div>
+            )}
             <div className="vt-hero-cta vt-reveal" style={{ animationDelay: ".2s" }}>
               <Link href="#appuntamento" className="vt-btn vt-btn-giallo">
                 Prenota la tua visita
@@ -273,16 +286,26 @@ export default async function VetrinaHome() {
             <div className="vt-sez-testa">
               <div>
                 <h2 id="t-rec">Dicono di noi</h2>
-                <p>Le parole di chi ha scelto Faieta Marine.</p>
+                <p className="vt-sub">Le parole di chi ha scelto Faieta Marine.</p>
               </div>
+              <BollinoGoogle v={v} />
             </div>
             <div className="vt-griglia">
               {recensioni.map((r) => (
                 <figure key={r.id} className="vt-box" style={{ margin: 0 }}>
-                  <div aria-label={`${r.stelle} stelle su 5`} style={{ color: "var(--giallo-s, #E0A400)", letterSpacing: 2 }}>
-                    {"★".repeat(r.stelle)}
-                  </div>
-                  <blockquote style={{ margin: "8px 0", fontSize: 15 }}>&ldquo;{r.testo}&rdquo;</blockquote>
+                  {r.fonte === "GOOGLE" ? (
+                    <span className="vt-rec-google">
+                      <span className="vt-g-logo" aria-hidden>
+                        G
+                      </span>
+                      Recensione su Google
+                    </span>
+                  ) : (
+                    <div aria-label={`${r.stelle} stelle su 5`} style={{ color: "var(--giallo-s, #E0A400)", letterSpacing: 2 }}>
+                      {"★".repeat(r.stelle)}
+                    </div>
+                  )}
+                  <blockquote style={{ margin: "8px 0", fontSize: 15 }}>&ldquo;{accorcia(r.testo, 320)}&rdquo;</blockquote>
                   <figcaption style={{ fontSize: 13, color: "var(--muted)" }}>
                     <b>{r.nome}</b>
                     {r.mezzo ? ` · ${r.mezzo}` : ""}
@@ -350,6 +373,19 @@ export default async function VetrinaHome() {
           <div className="vt-box" style={{ maxWidth: 640, margin: "0 auto" }}>
             <h2 style={{ fontSize: 28, color: "var(--blu-scuro)" }}>Prenota la tua visita o il tuo appuntamento</h2>
             <p style={{ color: "var(--muted)", margin: "8px 0 18px" }}>Lasciaci un recapito: ti richiamiamo per fissare giorno e ora. Ti aspettiamo in {v.indirizzo}.</p>
+            {sopraModulo.length > 0 && (
+              <div className="vt-rec-mini">
+                <BollinoGoogle v={v} />
+                {sopraModulo.map((r) => (
+                  <figure key={r.id}>
+                    <blockquote>&ldquo;{accorcia(r.testo, 200)}&rdquo;</blockquote>
+                    <figcaption>
+                      <b>{r.nome}</b> · Recensione su Google
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
             <FormAppuntamento versioneInformativa={s.versioneInformativa} telefono={v.telefono} />
           </div>
         </section>

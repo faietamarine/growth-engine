@@ -82,6 +82,9 @@ const sitoSchema = z.object({
   whatsapp: z.string().trim().max(25).default(""),
   heroFrase: z.string().trim().max(140).default(""),
   heroSotto: z.string().trim().max(280).default(""),
+  googleVoto: z.union([z.literal(""), z.string().trim().regex(/^[1-5]([.,]\d)?$/, "Voto Google: scrivi per esempio 4,9")]).default("").transform((v) => v.replace(".", ",")),
+  googleNumero: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().int().min(1).max(100000).nullable()).default(null),
+  googleLink: z.union([z.literal(""), z.string().trim().url("Link Google non valido").max(500)]).default(""),
 });
 
 const iconeSchema = z.preprocess((v) => {

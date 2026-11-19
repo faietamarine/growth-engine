@@ -368,6 +368,8 @@ export const testimonials = sqliteTable(
     stelle: integer("stelle").notNull().default(5),
     mezzo: text("mezzo").notNull().default(""), // es. "Capelli Tempest 600"
     foto: text("foto").notNull().default(""), // id in media
+    /** "GOOGLE" = copiata parola per parola da Google: sul sito niente stelle singole, ma la scritta "Recensione su Google". */
+    fonte: text("fonte").notNull().default(""),
     attivo: integer("attivo", { mode: "boolean" }).notNull().default(true),
     createdAt: createdAt(),
   },
