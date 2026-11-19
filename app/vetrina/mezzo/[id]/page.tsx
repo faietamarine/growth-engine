@@ -7,6 +7,7 @@ import { siteUrl } from "@/lib/seo/site";
 import { getMarchio } from "@/lib/brands/catalog";
 import { CONDIZIONI, datiVitali, euro, nomeCategoria } from "@/lib/vetrina/catalog";
 import { Galleria } from "@/components/vetrina/galleria";
+import { PrezzoMezzo } from "@/components/vetrina/prezzo-mezzo";
 import { AzioniMezzo } from "@/components/vetrina/azioni-mezzo";
 import { FormBrochure } from "@/components/vetrina/form-brochure";
 import { FormAvviso } from "@/components/vetrina/form-avviso";
@@ -98,7 +99,7 @@ export default async function SchedaMezzo({ params }: { params: Promise<{ id: st
             </span>
             <h1>{m.modello}</h1>
             {!venduto && <AzioniMezzo id={m.id} esteso />}
-            <div className="vt-prezzo-gr">{venduto ? "Venduto" : m.prezzo == null ? "Prezzo su richiesta" : euro(m.prezzo)}</div>
+            <PrezzoMezzo m={m} grande />
             {vitali.length > 0 && (
               <dl className="vt-vitali">
                 {vitali.map((d) => (

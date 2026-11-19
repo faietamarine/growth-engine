@@ -92,7 +92,7 @@
 .vt-tag.vt-venduto{background:var(--rosso);color:#fff}
 .vt-card-corpo{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
 .vt-card-marca{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--blu)}
-.vt-card h3{font-size:19px;color:var(--blu-scuro)}
+.vt-card h3{font-size:19px;font-weight:700;color:var(--blu-scuro)}
 .vt-dati{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:14px}
 .vt-dati span{white-space:nowrap}
 .vt-prezzo{margin-top:auto;padding-top:8px;font-family:Sora,Inter,sans-serif;font-weight:800;font-size:21px;color:var(--blu-scuro)}
@@ -101,7 +101,7 @@
 /* marchi */
 .vt-marchi{display:grid;gap:14px;grid-template-columns:repeat(2,1fr)}
 @media(min-width:700px){.vt-marchi{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:1000px){.vt-marchi{grid-template-columns:repeat(6,1fr)}}
+@media(min-width:1000px){.vt-marchi{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}}
 .vt-marchio{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#fff;border-radius:18px;padding:22px 14px;min-height:130px;text-decoration:none;border:2px solid transparent;box-shadow:0 2px 14px rgba(27,36,48,.07);transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
 .vt-marchio:hover{transform:translateY(-5px);border-color:var(--blu);box-shadow:0 14px 28px rgba(11,94,215,.16)}
 .vt-marchio img{max-height:46px;width:auto;max-width:100%;object-fit:contain}
@@ -213,10 +213,10 @@
 .vt-promo-x:hover{background:var(--blu-chiaro)}
 
 /* dealer ufficiale nel banner */
-.vt-dealer{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:28px;padding:10px 14px;border-radius:18px;background:rgba(255,255,255,.1);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);width:fit-content;max-width:100%}
+.vt-dealer{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:22px;padding:8px 12px;border-radius:18px;background:rgba(255,255,255,.1);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);width:fit-content;max-width:100%}
 .vt-dealer-label{font-family:Sora,Inter,sans-serif;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--giallo);white-space:nowrap}
 .vt-dealer-logo{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-.vt-dealer-chip{display:flex;align-items:center;justify-content:center;height:42px;padding:0 12px;background:#fff;border-radius:10px;transition:transform .2s ease,box-shadow .2s ease}
+.vt-dealer-chip{display:flex;align-items:center;justify-content:center;height:36px;padding:0 10px;background:#fff;border-radius:10px;transition:transform .2s ease,box-shadow .2s ease}
 .vt-dealer-chip:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.25)}
 
 /* riquadri categoria con foto */
@@ -290,3 +290,68 @@
 .vt-avviso-posti{background:#FFF4D6;border-radius:12px;padding:12px 14px;margin:0;font-weight:600;color:var(--ink)}
 .vt-servizio-foto{margin:-24px -24px 16px;aspect-ratio:4/3;overflow:hidden;border-radius:20px 20px 0 0;background:var(--blu-chiaro)}
 .vt-servizio-foto img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Banner a due colonne: testo a sinistra, annunci in pronta consegna che scorrono a destra */
+.vt-hero-inner{display:grid;gap:26px;align-items:center}
+.vt-hero-testo{min-width:0}
+.vt-hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.vt-hero-nastro{order:-1;min-width:0}
+@media(min-width:1100px){.vt-hero-2col{grid-template-columns:minmax(0,1.35fr) minmax(0,.9fr);gap:48px}.vt-hero-nastro{order:0}}
+.vt-nastro{--h:96px;--g:10px;--vis:1;background:rgba(4,27,61,.55);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:12px;box-shadow:0 24px 50px rgba(4,27,61,.35)}
+@media(min-width:1100px){.vt-nastro{--h:104px;--vis:3;padding:14px}}
+.vt-nastro-testa{display:flex;align-items:center;gap:8px;font:800 12px Sora,Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--giallo);margin:0 4px 10px}
+.vt-nastro-punto{width:8px;height:8px;border-radius:50%;background:#3BE07A;box-shadow:0 0 0 0 rgba(59,224,122,.6);animation:vt-pulse 1.8s infinite}
+@keyframes vt-pulse{70%{box-shadow:0 0 0 8px rgba(59,224,122,0)}100%{box-shadow:0 0 0 0 rgba(59,224,122,0)}}
+.vt-nastro-pausa{font-weight:600;letter-spacing:.04em;text-transform:none;color:#C9D8EE}
+.vt-nastro-tutti{margin-left:auto;color:#fff;text-decoration:none;letter-spacing:.02em;text-transform:none;font:700 13px Inter,sans-serif;white-space:nowrap}
+.vt-nastro-tutti:hover{text-decoration:underline}
+.vt-nastro-finestra{height:calc(var(--vis) * var(--h) + (var(--vis) - 1) * var(--g));overflow:hidden;border-radius:14px}
+.vt-nastro-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--g);transform:translateY(calc(var(--i,0) * -1 * (var(--h) + var(--g))));transition:transform .6s cubic-bezier(.65,0,.35,1)}
+.vt-nastro-fermo .vt-nastro-finestra{height:auto;max-height:calc(3 * var(--h) + 2 * var(--g));overflow:auto}
+.vt-nastro-lista li{height:var(--h);flex:none}
+.vt-nastro-voce{display:flex;gap:12px;height:100%;background:#fff;border-radius:14px;padding:8px;text-decoration:none;color:var(--ink);transition:transform .2s}
+.vt-nastro-voce:hover{transform:translateX(3px)}
+.vt-nastro-foto{position:relative;flex:none;width:118px;height:100%;border-radius:10px;overflow:hidden;background:var(--blu-chiaro);display:flex;align-items:center;justify-content:center;color:var(--blu)}
+.vt-nastro-foto img{width:100%;height:100%;object-fit:cover;display:block}
+.vt-nastro-tag{position:absolute;left:5px;top:5px;background:#E5322D;color:#fff;font:800 10.5px Inter,sans-serif;padding:3px 7px;border-radius:999px;letter-spacing:.02em;max-width:calc(100% - 10px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vt-nastro-testo{display:flex;flex-direction:column;justify-content:center;min-width:0;gap:1px}
+.vt-nastro-marca{font:800 11px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--blu)}
+.vt-nastro-testo b{font:700 16px Sora,Inter,sans-serif;color:var(--blu-scuro);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vt-nastro-prezzi{display:flex;align-items:baseline;gap:8px}
+.vt-nastro-prezzi s{color:var(--muted);font-size:13px}
+.vt-nastro-prezzi strong{font:800 18px Sora,Inter,sans-serif;color:var(--blu-scuro)}
+.vt-nastro-risp{font:700 12px Inter,sans-serif;color:#0B8A4A}
+
+/* Prezzo con listino barrato */
+.vt-prezzo-blocco{margin-top:auto;padding-top:8px;display:flex;flex-direction:column;gap:2px}
+.vt-listino{font-size:13.5px;color:var(--muted)}
+.vt-listino s{text-decoration-thickness:1.5px}
+.vt-risparmio{align-self:flex-start;background:#E7F7EE;color:#0B7A41;font:800 12.5px Inter,sans-serif;padding:3px 9px;border-radius:999px}
+.vt-scade{font-size:12.5px;color:#B4231E;font-weight:700}
+.vt-prezzo-blocco-gr .vt-listino{font-size:15px}
+.vt-prezzo-blocco-gr .vt-risparmio{font-size:14px;padding:4px 11px}
+.vt-tag-promo{position:absolute;left:12px;bottom:12px;background:#E5322D;color:#fff;font:800 12.5px Inter,sans-serif;padding:5px 11px;border-radius:999px;box-shadow:0 6px 14px rgba(229,50,45,.35)}
+
+/* Punti di forza sotto le categorie */
+.vt-usp{list-style:none;margin:26px 0 0;padding:0;display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(min-width:1000px){.vt-usp{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.vt-usp li{display:flex;gap:12px;align-items:center;background:#fff;border-radius:16px;padding:14px 16px;box-shadow:0 2px 14px rgba(27,36,48,.06);font-size:13.5px;color:var(--muted);line-height:1.35}
+.vt-usp svg{color:var(--blu);flex:none}
+.vt-usp b{display:block;color:var(--blu-scuro);font:700 15px Sora,Inter,sans-serif;margin-bottom:2px}
+
+/* Telefono: loghi dei marchi su una riga che scorre, così i pulsanti restano in vista */
+@media(max-width:699px){
+  .vt-dealer{flex-wrap:nowrap;width:100%;overflow-x:auto;scrollbar-width:none;padding:8px 10px;gap:10px}
+  .vt-dealer::-webkit-scrollbar{display:none}
+  .vt-dealer-logo{flex-wrap:nowrap}
+  .vt-dealer-label{font-size:10.5px}
+  .vt-dealer-chip{height:32px}
+  .vt-hero-inner{padding-block:26px 140px}
+}
+
+/* Pulsante "Prenota" fisso in basso sul telefono, dopo il banner */
+.vt-barra-prenota{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:rgba(255,255,255,.96);backdrop-filter:blur(8px);box-shadow:0 -8px 24px rgba(4,27,61,.12);transform:translateY(110%);transition:transform .3s ease}
+.vt-barra-prenota.on{transform:none}
+.vt-barra-prenota .vt-btn{width:100%;justify-content:center}
+@media(min-width:1100px){.vt-barra-prenota{display:none}}
+@media(max-width:1099px){.vt-barra-scelte{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}

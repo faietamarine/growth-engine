@@ -50,3 +50,27 @@ test("un articolo vuoto non si pubblica", () => {
   assert.equal(controllaPost({ ...p, stato: "BOZZA" }), null);
   assert.equal(controllaPost({ ...p, testo: "x".repeat(300) }), null);
 });
+
+import { euro, offerta, controllaMezzo, mezzoSchema } from "../lib/vetrina/catalog";
+
+test("euro con il separatore delle migliaia anche a 4 cifre", () => {
+  assert.equal(euro(5600).replace(/\s/g, " "), "5.600 €");
+  assert.equal(euro(68900).replace(/\s/g, " "), "68.900 €");
+});
+
+test("offerta: listino barrato solo se più alto, etichetta solo se non scaduta", () => {
+  const oggi = "2026-11-19";
+  assert.deepEqual(offerta({ prezzo: 68900, prezzoListino: 74500, promo: "Promo inverno", promoFine: "2027-01-31" }, oggi), { listino: 74500, risparmio: 5600, percentuale: 8, etichetta: "Promo inverno", scade: "2027-01-31" });
+  assert.equal(offerta({ prezzo: 70000, prezzoListino: 69000, promo: "" }, oggi), null);
+  assert.equal(offerta({ prezzo: 70000, prezzoListino: null, promo: "Promo estate", promoFine: "2026-09-30" }, oggi), null);
+  assert.equal(offerta({ prezzo: 70000, prezzoListino: 75000, promo: "", stato: "VENDUTO" }, oggi), null);
+  assert.equal(offerta({ prezzo: 70000, prezzoListino: 75000, promo: "Promo estate", promoFine: "2026-09-30" }, oggi)?.etichetta, "");
+});
+
+test("mezzo: il listino deve superare il prezzo", () => {
+  const base = { marca: "yamaha", modello: "F150", categoria: "FUORIBORDO", condizione: "PRONTA_CONSEGNA", stato: "BOZZA", foto: "[]", dotazioni: "" };
+  const ok = mezzoSchema.parse({ ...base, prezzo: "14200", prezzoListino: "15650" });
+  assert.equal(controllaMezzo(ok), null);
+  assert.ok(controllaMezzo(mezzoSchema.parse({ ...base, prezzo: "14200", prezzoListino: "14000" })));
+  assert.ok(controllaMezzo(mezzoSchema.parse({ ...base, prezzoListino: "15650" })));
+});

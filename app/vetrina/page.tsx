@@ -1,9 +1,12 @@
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { BadgeCheck, Repeat, Search, Warehouse, Wrench } from "lucide-react";
+import { BarraPrenota } from "@/components/vetrina/barra-prenota";
 import { testimonialsPubblici, getVetrinaSettings, mezziPubblici } from "@/features/vetrina/service";
 import { getSiteSettings } from "@/features/settings/service";
 import { MARCHI } from "@/lib/brands/catalog";
-import { CATEGORIE, SEZIONI_SITO } from "@/lib/vetrina/catalog";
+import { CATEGORIE, SEZIONI_SITO, euro, offerta } from "@/lib/vetrina/catalog";
+import { oggiRoma } from "@/lib/vetrina/promo";
+import { NastroPronte, type VoceNastro } from "@/components/vetrina/nastro-pronte";
 import { LogoMarchio } from "@/components/brand/logo-marchio";
 import { IconaCategoria } from "@/components/vetrina/icone";
 import { CardMezzo } from "@/components/vetrina/card-mezzo";
@@ -20,10 +23,28 @@ export default async function VetrinaHome() {
   const [v, s, tutti, recensioni, consegne, eventi, articoli, iscritti] = await Promise.all([getVetrinaSettings(), getSiteSettings(), mezziPubblici(), testimonialsPubblici("RECENSIONE", 6), testimonialsPubblici("CONSEGNA", 6), eventiInArrivo(3), postPubblici(3), iscrittiPerEvento()]);
   const per = (id: string) => tutti.filter((m) => m.condizione === id);
   const conteggio = (cat: string) => tutti.filter((m) => m.categoria === cat && m.stato === "PUBBLICATO").length;
+  const oggi = oggiRoma();
+  // Nel banner: le pronte consegne pubblicate, prima quelle in evidenza e in promo.
+  const nastro: VoceNastro[] = tutti
+    .filter((m) => m.condizione === "PRONTA_CONSEGNA" && m.stato === "PUBBLICATO")
+    .map((m) => ({ m, o: offerta(m, oggi) }))
+    .sort((a, b) => Number(b.m.inEvidenza) - Number(a.m.inEvidenza) || Number(!!b.o) - Number(!!a.o))
+    .slice(0, 12)
+    .map(({ m, o }) => ({
+      id: m.id,
+      marca: MARCHI.find((x) => x.slug === m.marca)?.nome ?? m.marca,
+      modello: m.modello,
+      foto: m.foto[0] ?? null,
+      prezzo: m.prezzo == null ? "Prezzo su richiesta" : euro(m.prezzo),
+      listino: o?.listino ? euro(o.listino) : null,
+      risparmio: o?.listino ? euro(o.risparmio) : null,
+      etichetta: o ? o.etichetta || (o.listino ? `-${o.percentuale}%` : "") : "",
+    }));
   const fotoCategoria = (cat: string) => tutti.find((m) => m.categoria === cat && m.stato === "PUBBLICATO" && m.foto[0])?.foto[0];
 
   const sezione = (c: (typeof SEZIONI_SITO)[number]) => {
     const lista = per(c.id);
+    if (!lista.length) return null; // in home niente sezioni vuote: danno l'idea di un'azienda ferma
     return (
       <section key={c.id} className="vt-sez" id={c.slug}>
         <div className="vt-sez-testa">
@@ -60,33 +81,40 @@ export default async function VetrinaHome() {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={`/media/${v.bannerId}`} alt="" className="vt-hero-foto" fetchPriority="high" />
         )}
-        <div className="vt-wrap vt-hero-inner">
-          <div className="vt-dealer vt-reveal" aria-label="Dealer ufficiale dei marchi">
-            <span className="vt-dealer-label">Dealer ufficiale</span>
-            <ul className="vt-dealer-logo">
-              {MARCHI.map((m) => (
-                <li key={m.slug}>
-                  <Link href={`/vetrina/marchi/${m.slug}`} className="vt-dealer-chip" aria-label={`Catalogo ${m.nome}`}>
-                    <LogoMarchio m={m} style={{ height: 26, width: "auto", maxWidth: 110, objectFit: "contain", display: "block", fontSize: 11 }} />
-                  </Link>
-                </li>
-              ))}
-            </ul>
+        <div className={`vt-wrap vt-hero-inner${nastro.length ? " vt-hero-2col" : ""}`}>
+          <div className="vt-hero-testo">
+            <h1 className="vt-reveal">
+              <span className="vt-hero-marca">{HERO_DEFAULT.titolo}</span> {v.heroFrase || HERO_DEFAULT.frase}
+            </h1>
+              <div className="vt-dealer vt-reveal" aria-label="Dealer ufficiale dei marchi" style={{ animationDelay: ".05s" }}>
+                <span className="vt-dealer-label">Dealer ufficiale</span>
+                <ul className="vt-dealer-logo">
+                  {MARCHI.map((m) => (
+                    <li key={m.slug}>
+                      <Link href={`/vetrina/marchi/${m.slug}`} className="vt-dealer-chip" aria-label={`Catalogo ${m.nome}`}>
+                        <LogoMarchio m={m} style={{ height: 22, width: "auto", maxWidth: 96, objectFit: "contain", display: "block", fontSize: 11 }} />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            <p className="vt-sotto vt-reveal" style={{ animationDelay: ".1s" }}>
+              {v.heroSotto || HERO_DEFAULT.sotto}
+            </p>
+            <div className="vt-hero-cta vt-reveal" style={{ animationDelay: ".2s" }}>
+              <Link href="#appuntamento" className="vt-btn vt-btn-giallo">
+                Prenota la tua visita
+              </Link>
+              <Link href="/vetrina/quiz" className="vt-btn vt-btn-bianco">
+                Trova il tuo mezzo
+              </Link>
+            </div>
           </div>
-          <h1 className="vt-reveal">
-            <span className="vt-hero-marca">{HERO_DEFAULT.titolo}</span> {v.heroFrase || HERO_DEFAULT.frase}
-          </h1>
-          <p className="vt-sotto vt-reveal" style={{ animationDelay: ".1s" }}>
-            {v.heroSotto || HERO_DEFAULT.sotto}
-          </p>
-          <div className="vt-reveal" style={{ animationDelay: ".2s", display: "flex", gap: 12, flexWrap: "wrap", marginTop: 26 }}>
-            <Link href="#appuntamento" className="vt-btn vt-btn-giallo">
-              Prenota la tua visita o il tuo appuntamento
-            </Link>
-            <Link href="/vetrina/quiz" className="vt-btn vt-btn-bianco">
-              Trova il tuo mezzo
-            </Link>
-          </div>
+          {nastro.length > 0 && (
+            <div className="vt-hero-nastro vt-reveal" style={{ animationDelay: ".15s" }}>
+              <NastroPronte voci={nastro} />
+            </div>
+          )}
         </div>
         {!v.bannerId && (
           <div className="vt-onde" aria-hidden>
@@ -159,6 +187,37 @@ export default async function VetrinaHome() {
             );
           })}
         </nav>
+
+        <ul className="vt-usp" aria-label="Perché Faieta Marine">
+          <li>
+            <BadgeCheck size={26} aria-hidden />
+            <span>
+              <b>Dealer ufficiale</b>
+              {MARCHI.length} marchi, garanzia della casa
+            </span>
+          </li>
+          <li>
+            <Wrench size={26} aria-hidden />
+            <span>
+              <b>Officina e ricambi</b>
+              Tecnici e assistenza in sede
+            </span>
+          </li>
+          <li>
+            <Warehouse size={26} aria-hidden />
+            <span>
+              <b>Rimessaggio</b>
+              Custodia e preparazione stagionale
+            </span>
+          </li>
+          <li>
+            <Repeat size={26} aria-hidden />
+            <span>
+              <b>Permuta dell&apos;usato</b>
+              Valutiamo il tuo mezzo
+            </span>
+          </li>
+        </ul>
 
         {SEZIONI_SITO.filter((c) => c.id === "PRONTA_CONSEGNA").map((c) => sezione(c))}
 
@@ -295,6 +354,7 @@ export default async function VetrinaHome() {
           </div>
         </section>
       </div>
+      <BarraPrenota />
     </main>
   );
 }

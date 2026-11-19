@@ -3,7 +3,8 @@ import { Ship } from "lucide-react";
 import type { Vehicle } from "@/db/schema";
 import { getMarchio } from "@/lib/brands/catalog";
 import { AzioniMezzo } from "./azioni-mezzo";
-import { CONDIZIONI, euro, metri } from "@/lib/vetrina/catalog";
+import { CONDIZIONI, metri } from "@/lib/vetrina/catalog";
+import { EtichettaPromo, PrezzoMezzo } from "./prezzo-mezzo";
 
 export function CardMezzo({ m }: { m: Vehicle }) {
   const marca = getMarchio(m.marca)?.nome ?? m.marca;
@@ -22,6 +23,7 @@ export function CardMezzo({ m }: { m: Vehicle }) {
           </div>
         )}
         <span className={`vt-tag${venduto ? " vt-venduto" : ""}`}>{venduto ? "Venduto" : (cond?.nome ?? "")}</span>
+        <EtichettaPromo m={m} />
       </div>
       <div className="vt-card-corpo">
         <span className="vt-card-marca">{marca}</span>
@@ -32,7 +34,7 @@ export function CardMezzo({ m }: { m: Vehicle }) {
           {m.motore && <span>{m.motore}</span>}
           {m.ore != null && <span>{m.ore} ore</span>}
         </div>
-        <div className="vt-prezzo">{m.prezzo == null ? <small>Prezzo su richiesta</small> : euro(m.prezzo)}</div>
+        <PrezzoMezzo m={m} />
       </div>
     </Link>
     {!venduto && <AzioniMezzo id={m.id} />}

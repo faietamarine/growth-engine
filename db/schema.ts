@@ -313,6 +313,11 @@ export const vehicles = sqliteTable(
     stato: text("stato").notNull().default("BOZZA"), // BOZZA, PUBBLICATO, VENDUTO
     anno: integer("anno"),
     prezzo: integer("prezzo"), // euro; vuoto = "su richiesta"
+    /** Prezzo di listino ufficiale della casa: se più alto del prezzo, il sito lo mostra barrato con il risparmio. */
+    prezzoListino: integer("prezzo_listino"),
+    /** Etichetta breve della promozione (es. "Promo inverno"); vuota = nessuna. */
+    promo: text("promo").notNull().default(""),
+    promoFine: text("promo_fine"), // AAAA-MM-GG, ultimo giorno della promo; vuota = senza scadenza
     lunghezza: real("lunghezza"), // metri
     motore: text("motore").notNull().default(""),
     ore: integer("ore"),

@@ -62,6 +62,9 @@ export const mezzoSchema = z.object({
   stato: z.enum(STATI_MEZZO).default("BOZZA"),
   anno: numero(1950, 2100),
   prezzo: numero(0, 50_000_000),
+  prezzoListino: numero(0, 50_000_000),
+  promo: z.string().trim().max(40).default(""),
+  promoFine: z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).default(""),
   lunghezza: numero(1, 200),
   motore: z.string().trim().max(120).default(""),
   ore: numero(0, 100_000),
@@ -78,10 +81,27 @@ export type MezzoInput = z.infer<typeof mezzoSchema>;
 export function controllaMezzo(d: MezzoInput): string | null {
   if (d.condizione === "USATO" && !d.anno) return "Per l'usato indica l'anno.";
   if (d.stato === "PUBBLICATO" && d.condizione !== "DA_ORDINARE" && d.foto.length === 0) return "Per pubblicare serve almeno una foto.";
+  if (d.prezzoListino != null && d.prezzo == null) return "Per mostrare il listino barrato serve anche il prezzo di vendita.";
+  if (d.prezzoListino != null && d.prezzo != null && d.prezzoListino <= d.prezzo) return "Il prezzo di listino deve essere più alto del prezzo di vendita (altrimenti lascialo vuoto).";
   return null;
 }
 
-export const euro = (n?: number | null) => (n == null ? "Su richiesta" : new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n));
+export type Offerta = { listino: number | null; risparmio: number; percentuale: number; etichetta: string; scade: string | null };
+
+/**
+ * Cosa mostrare come promozione di un mezzo, oggi. Il listino barrato compare solo se è davvero più alto del prezzo;
+ * l'etichetta promo solo se non è scaduta. null = nessuna promozione da mostrare.
+ */
+export function offerta(m: { prezzo: number | null; prezzoListino?: number | null; promo?: string; promoFine?: string | null; stato?: string }, oggi: string): Offerta | null {
+  if (m.stato === "VENDUTO") return null;
+  const listino = m.prezzo != null && m.prezzoListino != null && m.prezzoListino > m.prezzo ? m.prezzoListino : null;
+  const attiva = !!m.promo && (!m.promoFine || m.promoFine >= oggi);
+  if (!listino && !attiva) return null;
+  const risparmio = listino ? listino - (m.prezzo as number) : 0;
+  return { listino, risparmio, percentuale: listino ? Math.round((risparmio / listino) * 100) : 0, etichetta: attiva ? (m.promo as string) : "", scade: attiva && m.promoFine ? m.promoFine : null };
+}
+
+export const euro = (n?: number | null) => (n == null ? "Su richiesta" : new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0, useGrouping: "always" } as Intl.NumberFormatOptions).format(n));
 export const metri = (n?: number | null) => (n == null ? "" : `${String(n).replace(".", ",")} m`);
 
 /** Righe "dati vitali" mostrate sulla scheda e sulle card. */
