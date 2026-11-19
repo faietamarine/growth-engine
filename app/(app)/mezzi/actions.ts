@@ -8,6 +8,8 @@ import type { FormState } from "@/components/ui/action-form";
 import { CATEGORIA_IDS, controllaMezzo, mezzoSchema, STATI_MEZZO } from "@/lib/vetrina/catalog";
 import { aggiornaMezzo, cambiaStatoMezzo, caricaCatalogo, creaMezzo, eliminaMezzo, getVetrinaSettings, saveVetrinaSettings } from "@/features/vetrina/service";
 
+import { REPARTI_SERVIZI } from "@/lib/vetrina/contenuti";
+
 const uuid = z.string().uuid();
 const vai = (id: string, k: "msg" | "errore", m: string) => `/mezzi/${id}?${k}=${encodeURIComponent(m)}`;
 
@@ -78,6 +80,11 @@ const sitoSchema = z.object({
   email: z.string().trim().email("Email non valida").max(120),
   indirizzo: z.string().trim().min(5, "Inserisci l'indirizzo").max(160),
   whatsapp: z.string().trim().max(25).default(""),
+  heroFrase: z.string().trim().max(140).default(""),
+  heroSotto: z.string().trim().max(280).default(""),
+  googleVoto: z.union([z.literal(""), z.string().trim().regex(/^[1-5]([.,]\d)?$/, "Voto Google: scrivi per esempio 4,9")]).default("").transform((v) => v.replace(".", ",")),
+  googleNumero: z.preprocess((v) => (v === "" || v == null ? null : Number(v)), z.number().int().min(1).max(100000).nullable()).default(null),
+  googleLink: z.union([z.literal(""), z.string().trim().url("Link Google non valido").max(500)]).default(""),
 });
 
 const iconeSchema = z.preprocess((v) => {
@@ -146,4 +153,36 @@ export async function salvaIconeAction(_: FormState, form: FormData): Promise<Fo
   await saveVetrinaSettings({ ...attuali, icone: p.data as Record<string, string> }, user);
   revalidatePath("/vetrina", "layout");
   return { ok: "Icone salvate: sono già online sul sito." };
+}
+
+const fotoServiziSchema = z.preprocess((v) => {
+  try {
+    return JSON.parse(String(v ?? "{}"));
+  } catch {
+    return {};
+  }
+}, z.record(z.enum(REPARTI_SERVIZI.map((r) => r.id) as [string, ...string[]]), z.string().uuid()));
+
+export async function salvaFotoServiziAction(_: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  const p = fotoServiziSchema.safeParse(form.get("fotoServizi"));
+  if (!p.success) return { errore: "Foto non valide." };
+  const attuali = await getVetrinaSettings();
+  await saveVetrinaSettings({ ...attuali, fotoServizi: p.data as Record<string, string> }, user);
+  revalidatePath("/vetrina", "layout");
+  return { ok: "Foto salvate: sono già online nella pagina Assistenza." };
+}
+
+/* ---------- Finanziamento ---------- */
+import { finanziamentoSchema } from "@/lib/vetrina/finanziamento";
+
+export async function salvaFinanziamentoAction(_: FormState, form: FormData): Promise<FormState> {
+  const user = await requireUser("contenuti:scrivi");
+  const p = finanziamentoSchema.safeParse(Object.fromEntries(form));
+  if (!p.success) return { errore: p.error.issues[0].message };
+  const attuali = await getVetrinaSettings();
+  await saveVetrinaSettings({ ...attuali, finanziamento: p.data }, user);
+  revalidatePath("/mezzi/finanziamento");
+  revalidatePath("/vetrina", "layout");
+  return { ok: p.data.attivo ? "Salvato: l'esempio di finanziamento è nelle schede dei mezzi." : "Salvato (non visibile sul sito)." };
 }

@@ -1,7 +1,8 @@
 import "server-only";
+import { FINANZIAMENTO_VUOTO, type ImpostazioniFinanziamento } from "@/lib/vetrina/finanziamento";
 import { and, desc, eq, gte, inArray, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, media, promos, testimonials, type Testimonial, settings, vehicles, vehicleViews, type Vehicle, type User } from "@/db/schema";
+import { siteEvents, leads, media, posts, promos, testimonials, type Testimonial, settings, vehicles, vehicleViews, type Vehicle, type User } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import { MODELLI_CATALOGO } from "@/lib/brands/modelli";
 import { mezzoSchema, controllaMezzo, MAX_FOTO, type MezzoInput } from "@/lib/vetrina/catalog";
@@ -9,7 +10,25 @@ import { abbinaMezzo, nuovoPrezzo, type RigaImport, type Variazione } from "@/li
 import { inCorso, oggiRoma, type PromoInput } from "@/lib/vetrina/promo";
 
 /* ---------- Impostazioni della vetrina (banner e contatti) ---------- */
-export type VetrinaSettings = { bannerId: string; telefono: string; email: string; indirizzo: string; whatsapp: string; icone: Record<string, string> };
+export type VetrinaSettings = {
+  bannerId: string;
+  telefono: string;
+  email: string;
+  indirizzo: string;
+  whatsapp: string;
+  icone: Record<string, string>;
+  /** Frase dopo "Faieta Marine." nel banner, e il sottotitolo. Vuote = testo predefinito. */
+  heroFrase: string;
+  heroSotto: string;
+  /** Recensioni Google della scheda: voto medio ("4,9"), numero e link. Vuoti = bollino nascosto. */
+  googleVoto: string;
+  googleNumero: number | null;
+  googleLink: string;
+  /** Foto illustrativa per ogni reparto della pagina Assistenza (id reparto → id foto). */
+  fotoServizi: Record<string, string>;
+  /** Esempio di finanziamento nelle schede (dati dell'offerta della finanziaria convenzionata). */
+  finanziamento: ImpostazioniFinanziamento;
+};
 export const VETRINA_DEFAULT: VetrinaSettings = {
   bannerId: "",
   telefono: "0854 7078252",
@@ -17,11 +36,19 @@ export const VETRINA_DEFAULT: VetrinaSettings = {
   indirizzo: "Via Valle Roveto 29, 65124 Pescara (PE)",
   whatsapp: "",
   icone: {},
+  heroFrase: "",
+  heroSotto: "",
+  googleVoto: "",
+  googleNumero: null,
+  googleLink: "",
+  fotoServizi: {},
+  finanziamento: FINANZIAMENTO_VUOTO,
 };
 
 export async function getVetrinaSettings(): Promise<VetrinaSettings> {
   const row = await db.query.settings.findFirst({ where: eq(settings.key, "vetrina") });
-  return { ...VETRINA_DEFAULT, ...((row?.value as Partial<VetrinaSettings>) ?? {}) };
+  const salvate = (row?.value as Partial<VetrinaSettings>) ?? {};
+  return { ...VETRINA_DEFAULT, ...salvate, finanziamento: { ...FINANZIAMENTO_VUOTO, ...(salvate.finanziamento ?? {}) } };
 }
 
 export async function saveVetrinaSettings(s: VetrinaSettings, user: User) {
@@ -31,7 +58,7 @@ export async function saveVetrinaSettings(s: VetrinaSettings, user: User) {
     .values({ key: "vetrina", value: s })
     .onConflictDoUpdate({ target: settings.key, set: { value: s } });
   await audit(user, "vetrina", "settings", "vetrina", "dati della vetrina aggiornati");
-  await pulisciFoto([prima.bannerId, ...Object.values(prima.icone ?? {})].filter(Boolean));
+  await pulisciFoto([prima.bannerId, ...Object.values(prima.icone ?? {}), ...Object.values(prima.fotoServizi ?? {})].filter(Boolean));
 }
 
 /* ---------- Foto ---------- */
@@ -48,11 +75,18 @@ export async function leggiFoto(id: string) {
 async function pulisciFoto(candidati: string[]) {
   if (!candidati.length) return;
   const [tutti, s] = await Promise.all([db.select({ foto: vehicles.foto, brochure: vehicles.brochure }).from(vehicles), getVetrinaSettings()]);
-  const fotoTesti = (await db.select({ foto: testimonials.foto }).from(testimonials)).map((x) => x.foto);
-  const usate = new Set([...tutti.flatMap((v) => [...v.foto, v.brochure]), ...fotoTesti, s.bannerId, ...Object.values(s.icone ?? {})]);
+  const fotoTesti = [
+    ...(await db.select({ foto: testimonials.foto }).from(testimonials)),
+    ...(await db.select({ foto: posts.foto }).from(posts)),
+    ...(await db.select({ foto: siteEvents.foto }).from(siteEvents)),
+  ].map((x) => x.foto);
+  const usate = new Set([...tutti.flatMap((v) => [...v.foto, v.brochure]), ...fotoTesti, s.bannerId, ...Object.values(s.icone ?? {}), ...Object.values(s.fotoServizi ?? {})]);
   const orfane = candidati.filter((id) => !usate.has(id));
   if (orfane.length) await db.delete(media).where(inArray(media.id, orfane));
 }
+
+/** Per blog ed eventi: elimina le foto sostituite o rimaste senza contenuto. */
+export const pulisciFotoContenuti = (ids: string[]) => pulisciFoto(ids.filter(Boolean));
 
 /* ---------- Mezzi ---------- */
 const valori = (d: MezzoInput) => ({
@@ -63,6 +97,11 @@ const valori = (d: MezzoInput) => ({
   stato: d.stato,
   anno: d.anno ?? null,
   prezzo: d.prezzo ?? null,
+  prezzoListino: d.prezzoListino ?? null,
+  promo: d.promo,
+  incluso: d.incluso,
+  finanziabile: d.finanziabile,
+  promoFine: d.promoFine || null,
   lunghezza: d.lunghezza ?? null,
   motore: d.motore,
   ore: d.ore ?? null,
@@ -350,7 +389,7 @@ export async function segnaRichiamato(id: string, user: User) {
 
 
 /* ---------- Recensioni e consegne ---------- */
-export type TestimonialInput = { tipo: "RECENSIONE" | "CONSEGNA"; nome: string; testo: string; stelle: number; mezzo: string; foto: string };
+export type TestimonialInput = { tipo: "RECENSIONE" | "CONSEGNA"; nome: string; testo: string; stelle: number; mezzo: string; foto: string; fonte?: string };
 
 export async function elencoTestimonials() {
   return db.select().from(testimonials).orderBy(desc(testimonials.createdAt));
@@ -371,4 +410,22 @@ export async function eliminaTestimonial(id: string, user: User) {
   await db.delete(testimonials).where(eq(testimonials.id, id));
   if (t?.foto) await pulisciFoto([t.foto]);
   await audit(user, "vetrina", "testimonial", id, "eliminata");
+}
+
+/** Importa le recensioni Google scelte da Marco (testo identico, nome e iniziale) e, se mancano, voto e numero della scheda. */
+export async function importaRecensioniGoogle(user: User) {
+  const { RECENSIONI_GOOGLE, SCHEDA_GOOGLE } = await import("@/lib/vetrina/recensioni-google");
+  const presenti = new Set((await db.select({ nome: testimonials.nome, testo: testimonials.testo }).from(testimonials)).map((t) => `${t.nome}|${t.testo}`));
+  let n = 0;
+  // Dalla più vecchia alla più recente: in home escono prima le più recenti.
+  for (const r of [...RECENSIONI_GOOGLE].reverse()) {
+    if (presenti.has(`${r.nome}|${r.testo}`)) continue;
+    await creaTestimonial({ tipo: "RECENSIONE", nome: r.nome, testo: r.testo, stelle: 5, mezzo: "", foto: "", fonte: "GOOGLE" }, user);
+    n++;
+  }
+  const v = await getVetrinaSettings();
+  if (!v.googleVoto || !v.googleNumero || !v.googleLink) {
+    await saveVetrinaSettings({ ...v, googleVoto: v.googleVoto || SCHEDA_GOOGLE.voto, googleNumero: v.googleNumero || SCHEDA_GOOGLE.numero, googleLink: v.googleLink || SCHEDA_GOOGLE.link }, user);
+  }
+  return n;
 }

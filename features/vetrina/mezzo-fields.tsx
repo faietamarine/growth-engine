@@ -53,6 +53,30 @@ export function MezzoFields({ m }: { m?: Partial<Vehicle> }) {
       <Campo id="prezzo" label="Prezzo in euro" optional help="Vuoto = «Su richiesta»">
         <input id="prezzo" name="prezzo" inputMode="numeric" className="input" defaultValue={m?.prezzo ?? ""} placeholder="39000" />
       </Campo>
+      <div className="space-y-3 rounded-xl border border-line p-3 sm:col-span-2">
+        <p className="text-[13px] font-semibold">Promozione</p>
+        <p className="text-[12px] text-ink-faint">
+          Se metti il <b>listino ufficiale</b> della casa (più alto del prezzo), il sito mostra il listino barrato, il prezzo Faieta e quanto si risparmia. Usa solo il listino vero: un prezzo &quot;prima&quot; inventato è pubblicità ingannevole.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Campo id="prezzoListino" label="Listino ufficiale (€)" optional>
+            <input id="prezzoListino" name="prezzoListino" inputMode="numeric" className="input" defaultValue={m?.prezzoListino ?? ""} placeholder="45900" />
+          </Campo>
+          <Campo id="promo" label="Etichetta promo" optional help="Breve, es. «Promo inverno»">
+            <input id="promo" name="promo" maxLength={40} className="input" defaultValue={m?.promo ?? ""} placeholder="Promo inverno" />
+          </Campo>
+          <Campo id="promoFine" label="Valida fino al" optional help="Dopo questa data l'etichetta sparisce da sola">
+            <input id="promoFine" name="promoFine" type="date" className="input" defaultValue={m?.promoFine ?? ""} />
+          </Campo>
+        </div>
+      </div>
+      <Campo id="incluso" label="Cosa comprende il prezzo" optional help="Una voce per riga: motore, approntamento, trasporto, IVA… Il cliente vede subito cosa paga.">
+        <textarea id="incluso" name="incluso" rows={3} maxLength={1000} className="input sm:col-span-2" defaultValue={m?.incluso ?? ""} placeholder={"Motore Yamaha F200 XCA\nApprontamento e collaudo\nIVA inclusa"} />
+      </Campo>
+      <label className="flex items-center gap-2 text-[13px] font-medium">
+        <input type="checkbox" name="finanziabile" defaultChecked={m?.finanziabile ?? true} />
+        Proponi il finanziamento nella scheda (&quot;Vuoi finanziarlo?&quot;)
+      </label>
       <Campo id="lunghezza" label="Lunghezza in metri" optional>
         <input id="lunghezza" name="lunghezza" inputMode="decimal" className="input" defaultValue={m?.lunghezza ?? ""} placeholder="7,5" />
       </Campo>
