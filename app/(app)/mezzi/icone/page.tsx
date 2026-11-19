@@ -6,9 +6,10 @@ import { CATEGORIE } from "@/lib/vetrina/catalog";
 import { ActionForm } from "@/components/ui/action-form";
 import { IconeEditor } from "@/components/vetrina/icone-editor";
 import { PageHeader } from "@/components/layout/page-header";
-import { salvaIconeAction } from "../actions";
+import { salvaFotoServiziAction, salvaIconeAction } from "../actions";
+import { REPARTI_SERVIZI } from "@/lib/vetrina/contenuti";
 
-export const metadata = { title: "Icone del sito" };
+export const metadata = { title: "Icone e foto del sito" };
 export const dynamic = "force-dynamic";
 
 export default async function IconePage() {
@@ -19,7 +20,7 @@ export default async function IconePage() {
       <Link href="/mezzi" className="mb-3 inline-flex items-center gap-1 text-[13px] font-semibold text-ink-soft hover:text-navy">
         <ArrowLeft size={14} /> Vetrina mezzi
       </Link>
-      <PageHeader title="Icone del sito" subtitle="Le immagini delle tessere Gommoni, Open, Cabinati, Moto d'acqua e Fuoribordo" />
+      <PageHeader title="Icone e foto del sito" subtitle="Le immagini delle tessere in home e le foto dei reparti nella pagina Assistenza" />
       <div className="mx-auto max-w-4xl space-y-4">
         <div className="card text-[13px] leading-relaxed text-ink-soft">
           <p className="font-semibold text-ink">Che file caricare</p>
@@ -34,6 +35,13 @@ export default async function IconePage() {
         <ActionForm action={salvaIconeAction} submit="Salva icone" icon={<Save size={16} />}>
           <IconeEditor categorie={CATEGORIE.map((c) => ({ id: c.id, nome: c.nome }))} iniziali={s.icone ?? {}} />
         </ActionForm>
+        <section id="servizi" className="space-y-2 pt-4">
+          <h2 className="font-display text-[16px] font-semibold">Foto della pagina Assistenza</h2>
+          <p className="text-[13px] text-ink-soft">Una foto per reparto (stesse misure delle icone: 1200 × 900, orizzontale). Usa solo foto vostre: officina, piazzale, consegne. Senza foto il riquadro mostra solo il testo.</p>
+          <ActionForm action={salvaFotoServiziAction} submit="Salva foto" icon={<Save size={16} />}>
+            <IconeEditor categorie={REPARTI_SERVIZI.map((r) => ({ id: r.id, nome: r.titolo }))} iniziali={s.fotoServizi ?? {}} nomeCampo="fotoServizi" senzaIcona />
+          </ActionForm>
+        </section>
       </div>
     </>
   );

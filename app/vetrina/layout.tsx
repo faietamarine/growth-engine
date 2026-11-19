@@ -5,7 +5,10 @@ import { CookieConsent } from "@/components/landing/consent";
 import { getSiteSettings } from "@/features/settings/service";
 import { getVetrinaSettings, promoInCorso } from "@/features/vetrina/service";
 import { BarraScelte } from "@/components/vetrina/barra-scelte";
-import { WhatsAppFisso } from "@/components/vetrina/whatsapp";
+import { WhatsAppTesta } from "@/components/vetrina/whatsapp";
+import { MenuMobile } from "@/components/vetrina/menu-mobile";
+import { Phone } from "lucide-react";
+import { eventiInArrivo, postPubblici } from "@/features/vetrina/contenuti";
 import { parteIndirizzo, siteUrl } from "@/lib/seo/site";
 import { PopupPromo } from "@/components/vetrina/popup-promo";
 import { etichettaCta } from "@/lib/vetrina/promo";
@@ -14,15 +17,25 @@ import { SEZIONI_SITO } from "@/lib/vetrina/catalog";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: { default: "Faieta Marine · Barche nuove e usate a Pescara", template: "%s · Faieta Marine" },
-  description: "Pronte consegne, catalogo da ordinare e usato selezionato. Joker Boat, Jeanneau, Capelli, Yamaha, Invictus, Capoforte. Prenota la tua visita a Pescara.",
+  title: { default: "Faieta Marine · Barche, gommoni, moto d'acqua e motori a Pescara", template: "%s · Faieta Marine" },
+  description: "Faieta Marine: vendita, assistenza e rimessaggio a Pescara. Barche, gommoni, moto d'acqua e motori: pronte consegne, catalogo e usato. Joker Boat, Jeanneau, Capelli, Yamaha, Invictus, Capoforte.",
   robots: { index: true, follow: true },
   openGraph: { siteName: "Faieta Marine", locale: "it_IT", type: "website", images: ["/brand/faieta-marine.png"] },
   twitter: { card: "summary_large_image" },
 };
 
 export default async function VetrinaLayout({ children }: { children: React.ReactNode }) {
-  const [s, v, promo] = await Promise.all([getSiteSettings(), getVetrinaSettings(), promoInCorso()]);
+  const [s, v, promo, eventi, articoli] = await Promise.all([getSiteSettings(), getVetrinaSettings(), promoInCorso(), eventiInArrivo(1), postPubblici(1)]);
+  // Blog ed Eventi compaiono nel menu solo quando hanno contenuti: una sezione vuota fa sembrare l'azienda ferma.
+  const voci = [
+    ...SEZIONI_SITO.map((c) => ({ href: `/vetrina/mezzi?condizione=${c.slug}`, nome: c.id === "USATO" ? "Usato" : c.titolo })),
+    { href: "/vetrina#marchi", nome: "Marchi" },
+    ...(eventi.length ? [{ href: "/vetrina/eventi", nome: "Eventi" }] : []),
+    ...(articoli.length ? [{ href: "/vetrina/blog", nome: "Blog" }] : []),
+    { href: "/vetrina/servizi", nome: "Assistenza" },
+    { href: "/vetrina/valuta", nome: "Valuta il tuo usato" },
+  ];
+  const vociMobile = [...voci, { href: "/vetrina/quiz", nome: "Trova la tua barca" }];
   const tel = v.telefono.replace(/[^\d+]/g, "");
   const telHref = `tel:${tel.startsWith("+") ? tel : `+39${tel}`}`;
   const azienda = {
@@ -50,23 +63,21 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
             <img src="/brand/faieta-marine.png" alt="Faieta Marine" width={88} height={44} />
           </Link>
           <nav className="vt-nav" aria-label="Sezioni del sito">
-            {SEZIONI_SITO.map((c) => (
-              <Link key={c.id} href={`/vetrina/mezzi?condizione=${c.slug}`}>
-                {c.titolo}
+            {voci.map((x) => (
+              <Link key={x.href} href={x.href}>
+                {x.nome}
               </Link>
             ))}
-            <Link href="/vetrina#marchi">I nostri marchi</Link>
-            <Link href="/vetrina/quiz">Trova la tua barca</Link>
-            <Link href="/vetrina/valuta">Valuta la tua barca</Link>
-            <Link href="/vetrina/servizi">Assistenza</Link>
           </nav>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <a href={telHref} className="vt-tel">
-              {v.telefono}
+          <div className="vt-head-azioni">
+            <a href={telHref} className="vt-ico-btn" aria-label={`Chiamaci: ${v.telefono}`} title={`Chiamaci: ${v.telefono}`}>
+              <Phone size={20} aria-hidden />
             </a>
+            {v.whatsapp && <WhatsAppTesta numero={v.whatsapp} />}
             <Link href="/vetrina#appuntamento" className="vt-btn vt-btn-giallo vt-head-cta">
               Prenota visita
             </Link>
+            <MenuMobile voci={vociMobile} telHref={telHref} />
           </div>
         </div>
       </header>
@@ -83,8 +94,15 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
               <h4>Contatti</h4>
               <ul>
                 <li>
-                  <a href={telHref}>{v.telefono}</a>
+                  <a href={telHref}>Tel. {v.telefono}</a>
                 </li>
+                {v.whatsapp && (
+                  <li>
+                    <a href={`https://wa.me/${v.whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener">
+                      WhatsApp
+                    </a>
+                  </li>
+                )}
                 <li>
                   <a href={`mailto:${v.email}`}>{v.email}</a>
                 </li>
@@ -107,6 +125,16 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
                 <li>
                   <Link href="/vetrina/servizi">Assistenza e preventivi</Link>
                 </li>
+                {eventi.length > 0 && (
+                  <li>
+                    <Link href="/vetrina/eventi">Eventi e prove in mare</Link>
+                  </li>
+                )}
+                {articoli.length > 0 && (
+                  <li>
+                    <Link href="/vetrina/blog">Blog</Link>
+                  </li>
+                )}
                 <li>
                   <Link href="/l/privacy">Informativa privacy</Link>
                 </li>
@@ -120,9 +148,6 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
         </div>
       </footer>
       <BarraScelte />
-      {v.whatsapp && (
-        <WhatsAppFisso numero={v.whatsapp} />
-      )}
       {promo && (
         <PopupPromo
           promo={{

@@ -369,3 +369,46 @@ export const testimonials = sqliteTable(
   (t) => [index("testimonials_tipo_idx").on(t.tipo, t.attivo)],
 );
 export type Testimonial = typeof testimonials.$inferSelect;
+
+/** Articoli del blog del sito pubblico. Il testo è semplice: righe vuote = paragrafi, "## " = sottotitolo. */
+export const posts = sqliteTable(
+  "posts",
+  {
+    id: id(),
+    slug: text("slug").notNull(),
+    titolo: text("titolo").notNull(),
+    sommario: text("sommario").notNull().default(""),
+    testo: text("testo").notNull().default(""),
+    foto: text("foto").notNull().default(""), // id in media
+    stato: text("stato", { enum: ["BOZZA", "PUBBLICATO"] }).notNull().default("BOZZA"),
+    pubblicatoIl: text("pubblicato_il"), // AAAA-MM-GG, data mostrata sul sito
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex("posts_slug_idx").on(t.slug), index("posts_stato_idx").on(t.stato, t.pubblicatoIl)],
+);
+export type Post = typeof posts.$inferSelect;
+
+/** Eventi e giornate di prove in mare: il cliente si iscrive dal sito e l'iscrizione arriva come lead. */
+export const siteEvents = sqliteTable(
+  "site_events",
+  {
+    id: id(),
+    slug: text("slug").notNull(),
+    tipo: text("tipo", { enum: ["PROVE_IN_MARE", "EVENTO"] }).notNull().default("PROVE_IN_MARE"),
+    titolo: text("titolo").notNull(),
+    data: text("data").notNull(), // AAAA-MM-GG
+    dataFine: text("data_fine"), // AAAA-MM-GG, per eventi di più giorni
+    orario: text("orario").notNull().default(""), // es. "10:00 – 18:00"
+    luogo: text("luogo").notNull().default(""),
+    descrizione: text("descrizione").notNull().default(""),
+    mezzi: text("mezzi").notNull().default(""), // mezzi in prova, uno per riga
+    foto: text("foto").notNull().default(""),
+    posti: integer("posti"), // vuoto = senza limite
+    stato: text("stato", { enum: ["BOZZA", "PUBBLICATO"] }).notNull().default("BOZZA"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex("site_events_slug_idx").on(t.slug), index("site_events_data_idx").on(t.stato, t.data)],
+);
+export type Evento = typeof siteEvents.$inferSelect;

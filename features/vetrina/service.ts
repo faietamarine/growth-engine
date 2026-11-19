@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, gte, inArray, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { leads, media, promos, testimonials, type Testimonial, settings, vehicles, vehicleViews, type Vehicle, type User } from "@/db/schema";
+import { siteEvents, leads, media, posts, promos, testimonials, type Testimonial, settings, vehicles, vehicleViews, type Vehicle, type User } from "@/db/schema";
 import { audit } from "@/lib/audit";
 import { MODELLI_CATALOGO } from "@/lib/brands/modelli";
 import { mezzoSchema, controllaMezzo, MAX_FOTO, type MezzoInput } from "@/lib/vetrina/catalog";
@@ -9,7 +9,19 @@ import { abbinaMezzo, nuovoPrezzo, type RigaImport, type Variazione } from "@/li
 import { inCorso, oggiRoma, type PromoInput } from "@/lib/vetrina/promo";
 
 /* ---------- Impostazioni della vetrina (banner e contatti) ---------- */
-export type VetrinaSettings = { bannerId: string; telefono: string; email: string; indirizzo: string; whatsapp: string; icone: Record<string, string> };
+export type VetrinaSettings = {
+  bannerId: string;
+  telefono: string;
+  email: string;
+  indirizzo: string;
+  whatsapp: string;
+  icone: Record<string, string>;
+  /** Frase dopo "Faieta Marine." nel banner, e il sottotitolo. Vuote = testo predefinito. */
+  heroFrase: string;
+  heroSotto: string;
+  /** Foto illustrativa per ogni reparto della pagina Assistenza (id reparto → id foto). */
+  fotoServizi: Record<string, string>;
+};
 export const VETRINA_DEFAULT: VetrinaSettings = {
   bannerId: "",
   telefono: "0854 7078252",
@@ -17,6 +29,9 @@ export const VETRINA_DEFAULT: VetrinaSettings = {
   indirizzo: "Via Valle Roveto 29, 65124 Pescara (PE)",
   whatsapp: "",
   icone: {},
+  heroFrase: "",
+  heroSotto: "",
+  fotoServizi: {},
 };
 
 export async function getVetrinaSettings(): Promise<VetrinaSettings> {
@@ -31,7 +46,7 @@ export async function saveVetrinaSettings(s: VetrinaSettings, user: User) {
     .values({ key: "vetrina", value: s })
     .onConflictDoUpdate({ target: settings.key, set: { value: s } });
   await audit(user, "vetrina", "settings", "vetrina", "dati della vetrina aggiornati");
-  await pulisciFoto([prima.bannerId, ...Object.values(prima.icone ?? {})].filter(Boolean));
+  await pulisciFoto([prima.bannerId, ...Object.values(prima.icone ?? {}), ...Object.values(prima.fotoServizi ?? {})].filter(Boolean));
 }
 
 /* ---------- Foto ---------- */
@@ -48,11 +63,18 @@ export async function leggiFoto(id: string) {
 async function pulisciFoto(candidati: string[]) {
   if (!candidati.length) return;
   const [tutti, s] = await Promise.all([db.select({ foto: vehicles.foto, brochure: vehicles.brochure }).from(vehicles), getVetrinaSettings()]);
-  const fotoTesti = (await db.select({ foto: testimonials.foto }).from(testimonials)).map((x) => x.foto);
-  const usate = new Set([...tutti.flatMap((v) => [...v.foto, v.brochure]), ...fotoTesti, s.bannerId, ...Object.values(s.icone ?? {})]);
+  const fotoTesti = [
+    ...(await db.select({ foto: testimonials.foto }).from(testimonials)),
+    ...(await db.select({ foto: posts.foto }).from(posts)),
+    ...(await db.select({ foto: siteEvents.foto }).from(siteEvents)),
+  ].map((x) => x.foto);
+  const usate = new Set([...tutti.flatMap((v) => [...v.foto, v.brochure]), ...fotoTesti, s.bannerId, ...Object.values(s.icone ?? {}), ...Object.values(s.fotoServizi ?? {})]);
   const orfane = candidati.filter((id) => !usate.has(id));
   if (orfane.length) await db.delete(media).where(inArray(media.id, orfane));
 }
+
+/** Per blog ed eventi: elimina le foto sostituite o rimaste senza contenuto. */
+export const pulisciFotoContenuti = (ids: string[]) => pulisciFoto(ids.filter(Boolean));
 
 /* ---------- Mezzi ---------- */
 const valori = (d: MezzoInput) => ({

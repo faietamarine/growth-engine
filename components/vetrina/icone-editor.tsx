@@ -7,7 +7,7 @@ import { IconaCategoria } from "./icone";
 import type { CategoriaId } from "@/lib/vetrina/catalog";
 
 /** Una tessera per categoria: anteprima su fondo blu, carica la tua icona o torna a quella predefinita. */
-export function IconeEditor({ categorie, iniziali }: { categorie: { id: CategoriaId; nome: string }[]; iniziali: Record<string, string> }) {
+export function IconeEditor({ categorie, iniziali, nomeCampo = "icone", senzaIcona }: { categorie: { id: string; nome: string }[]; iniziali: Record<string, string>; nomeCampo?: string; /** Al posto dell'icona disegnata mostra la scritta "Nessuna foto" (es. reparti dei servizi). */ senzaIcona?: boolean }) {
   const [icone, setIcone] = useState<Record<string, string>>(iniziali);
   const [carico, setCarico] = useState<string | null>(null);
   const [errore, setErrore] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export function IconeEditor({ categorie, iniziali }: { categorie: { id: Categori
 
   return (
     <div>
-      <input type="hidden" name="icone" value={JSON.stringify(icone)} />
+      <input type="hidden" name={nomeCampo} value={JSON.stringify(icone)} />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {categorie.map((c) => (
           <div key={c.id} className="rounded-xl border border-line bg-surface p-3">
@@ -36,8 +36,8 @@ export function IconeEditor({ categorie, iniziali }: { categorie: { id: Categori
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={`/media/${icone[c.id]}`} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
-                <div style={{ width: "70%" }}>
-                  <IconaCategoria id={c.id} />
+                <div style={{ width: "70%", color: "#fff", textAlign: "center", fontSize: 13, fontWeight: 600 }}>
+                  {senzaIcona ? "Nessuna foto: sul sito compare solo il testo" : <IconaCategoria id={c.id as CategoriaId} />}
                 </div>
               )}
             </div>

@@ -8,13 +8,16 @@ import { LogoMarchio } from "@/components/brand/logo-marchio";
 import { IconaCategoria } from "@/components/vetrina/icone";
 import { CardMezzo } from "@/components/vetrina/card-mezzo";
 import { FormAppuntamento } from "@/components/vetrina/form-appuntamento";
+import { eventiInArrivo, iscrittiPerEvento, postPubblici } from "@/features/vetrina/contenuti";
+import { CardEvento, CardPost } from "@/components/vetrina/card-contenuti";
+import { HERO_DEFAULT } from "@/lib/vetrina/contenuti";
 
 export const dynamic = "force-dynamic";
 
 const ONDA = "M0 40 C 120 10, 240 70, 360 40 S 600 10, 720 40 S 960 70, 1080 40 S 1320 10, 1440 40 S 1680 70, 1800 40 S 2040 10, 2160 40 S 2400 70, 2520 40 S 2760 10, 2880 40 V80 H0Z";
 
 export default async function VetrinaHome() {
-  const [v, s, tutti, recensioni, consegne] = await Promise.all([getVetrinaSettings(), getSiteSettings(), mezziPubblici(), testimonialsPubblici("RECENSIONE", 6), testimonialsPubblici("CONSEGNA", 6)]);
+  const [v, s, tutti, recensioni, consegne, eventi, articoli, iscritti] = await Promise.all([getVetrinaSettings(), getSiteSettings(), mezziPubblici(), testimonialsPubblici("RECENSIONE", 6), testimonialsPubblici("CONSEGNA", 6), eventiInArrivo(3), postPubblici(3), iscrittiPerEvento()]);
   const per = (id: string) => tutti.filter((m) => m.condizione === id);
   const conteggio = (cat: string) => tutti.filter((m) => m.categoria === cat && m.stato === "PUBBLICATO").length;
   const fotoCategoria = (cat: string) => tutti.find((m) => m.categoria === cat && m.stato === "PUBBLICATO" && m.foto[0])?.foto[0];
@@ -70,16 +73,18 @@ export default async function VetrinaHome() {
               ))}
             </ul>
           </div>
-          <h1 className="vt-reveal">La tua prossima barca, qui a Pescara.</h1>
+          <h1 className="vt-reveal">
+            <span className="vt-hero-marca">{HERO_DEFAULT.titolo}</span> {v.heroFrase || HERO_DEFAULT.frase}
+          </h1>
           <p className="vt-sotto vt-reveal" style={{ animationDelay: ".1s" }}>
-            Pronte consegne, modelli da ordinare e usato selezionato. Vieni a vederla: prenota la tua visita.
+            {v.heroSotto || HERO_DEFAULT.sotto}
           </p>
           <div className="vt-reveal" style={{ animationDelay: ".2s", display: "flex", gap: 12, flexWrap: "wrap", marginTop: 26 }}>
             <Link href="#appuntamento" className="vt-btn vt-btn-giallo">
               Prenota la tua visita o il tuo appuntamento
             </Link>
             <Link href="/vetrina/quiz" className="vt-btn vt-btn-bianco">
-              Trova la tua barca
+              Trova il tuo mezzo
             </Link>
           </div>
         </div>
@@ -175,6 +180,25 @@ export default async function VetrinaHome() {
 
         {SEZIONI_SITO.filter((c) => c.id === "USATO").map((c) => sezione(c))}
 
+        {eventi.length > 0 && (
+          <section className="vt-sez" id="eventi" aria-labelledby="t-eventi">
+            <div className="vt-sez-testa">
+              <div>
+                <h2 id="t-eventi">Eventi e prove in mare</h2>
+                <p className="vt-sub">Provala in acqua prima di sceglierla. I posti sono limitati.</p>
+              </div>
+              <Link href="/vetrina/eventi" className="vt-tutti">
+                Tutti gli eventi →
+              </Link>
+            </div>
+            <div className="vt-griglia">
+              {eventi.map((e) => (
+                <CardEvento key={e.id} e={e} liberi={e.posti ? Math.max(0, e.posti - (iscritti[e.id] ?? 0)) : null} />
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="vt-banda" aria-labelledby="t-quiz">
           <div>
             <h2 id="t-quiz">Non sai quale scegliere?</h2>
@@ -229,6 +253,25 @@ export default async function VetrinaHome() {
                     {c.testo && <span style={{ display: "block", color: "var(--muted)" }}>{c.testo}</span>}
                   </figcaption>
                 </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {articoli.length > 0 && (
+          <section className="vt-sez" aria-labelledby="t-blog">
+            <div className="vt-sez-testa">
+              <div>
+                <h2 id="t-blog">Dal blog</h2>
+                <p className="vt-sub">Consigli pratici da chi vende e ripara mezzi nautici ogni giorno.</p>
+              </div>
+              <Link href="/vetrina/blog" className="vt-tutti">
+                Tutti gli articoli →
+              </Link>
+            </div>
+            <div className="vt-griglia">
+              {articoli.map((p) => (
+                <CardPost key={p.id} p={p} />
               ))}
             </div>
           </section>

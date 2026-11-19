@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Anchor, Droplets, Snowflake, Wrench } from "lucide-react";
+import { REPARTI_SERVIZI } from "@/lib/vetrina/contenuti";
 import { getVetrinaSettings } from "@/features/vetrina/service";
 import { getSiteSettings } from "@/features/settings/service";
 import { FormPreventivo } from "@/components/vetrina/form-preventivo";
@@ -12,12 +13,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/vetrina/servizi" },
 };
 
-const SERVIZI = [
-  { icona: Wrench, titolo: "Officina fuoribordo e moto d'acqua", testo: "Tagliandi, diagnosi e riparazioni su fuoribordo e moto d'acqua, con ricambi e personale tecnico in sede." },
-  { icona: Droplets, titolo: "Manutenzione e preparazione", testo: "Messa a punto di inizio stagione, controlli prima del varo, lavaggio e sanificazione dei circuiti." },
-  { icona: Snowflake, titolo: "Rimessaggio e invernaggio", testo: "Custodia del mezzo nei mesi invernali e preparazione al fermo, per ritrovarlo pronto in primavera." },
-  { icona: Anchor, titolo: "Consegna del nuovo", testo: "Allestimento e consegna del mezzo acquistato, con prova e spiegazione a bordo." },
-];
+const ICONE = { officina: Wrench, manutenzione: Droplets, rimessaggio: Snowflake, consegna: Anchor } as const;
+const SERVIZI = REPARTI_SERVIZI.map((r) => ({ ...r, icona: ICONE[r.id] }));
 
 export default async function Servizi() {
   const [s, v] = await Promise.all([getSiteSettings(), getVetrinaSettings()]);
@@ -45,7 +42,14 @@ export default async function Servizi() {
         <div className="vt-griglia">
           {SERVIZI.map((x) => (
             <div key={x.titolo} className="vt-box">
-              <x.icona size={28} color="var(--blu)" aria-hidden />
+              {v.fotoServizi?.[x.id] ? (
+                <div className="vt-servizio-foto">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/media/${v.fotoServizi[x.id]}`} alt={x.titolo} loading="lazy" />
+                </div>
+              ) : (
+                <x.icona size={28} color="var(--blu)" aria-hidden />
+              )}
               <h2 style={{ fontSize: 18, margin: "10px 0 6px" }}>{x.titolo}</h2>
               <p style={{ margin: 0, color: "var(--muted)" }}>{x.testo}</p>
             </div>
