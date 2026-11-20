@@ -7,6 +7,7 @@ import { getVetrinaSettings, promoInCorso } from "@/features/vetrina/service";
 import { BarraScelte } from "@/components/vetrina/barra-scelte";
 import { WhatsAppTesta } from "@/components/vetrina/whatsapp";
 import { MenuMobile } from "@/components/vetrina/menu-mobile";
+import { RicordaUtm } from "@/components/vetrina/ricorda-utm";
 import { Phone } from "lucide-react";
 import { eventiInArrivo, postPubblici } from "@/features/vetrina/contenuti";
 import { parteIndirizzo, siteUrl } from "@/lib/seo/site";
@@ -85,6 +86,7 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
           </div>
         </div>
       </header>
+      <RicordaUtm />
       {children}
       <footer className="vt-piede">
         <div className="vt-wrap">

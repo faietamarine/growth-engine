@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Ship, Globe, Megaphone, Shapes, Star, Newspaper, CalendarDays, Landmark, Copy, Clock, BarChart3, Wrench, TriangleAlert, ExternalLink } from "lucide-react";
+import { Plus, Ship, Globe, Megaphone, Shapes, Star, Newspaper, CalendarDays, Landmark, MessageCircle, Copy, Clock, BarChart3, Wrench, TriangleAlert, ExternalLink } from "lucide-react";
 import { requireUser } from "@/lib/auth/session";
 import { can } from "@/lib/rbac";
 import { elencoMezzi, mezziFermi } from "@/features/vetrina/service";
@@ -45,6 +45,9 @@ export default async function MezziPage({ searchParams }: { searchParams: Promis
                 </Link>
                 <Link href="/mezzi/strumenti" className="btn-ghost">
                   <Wrench size={16} /> Strumenti
+                </Link>
+                <Link href="/mezzi/whatsapp" className="btn-ghost">
+                  <MessageCircle size={16} /> Catalogo WhatsApp
                 </Link>
                 <Link href="/mezzi/finanziamento" className="btn-ghost">
                   <Landmark size={16} /> Finanziamento
