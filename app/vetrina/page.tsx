@@ -116,7 +116,7 @@ export default async function VetrinaHome() {
             )}
             <div className="vt-hero-cta vt-reveal vt-o-cta" style={{ animationDelay: ".2s" }}>
               <Link href="#appuntamento" className="vt-btn vt-btn-giallo">
-                Prenota la tua visita
+                Chiedi un preventivo
               </Link>
               <Link href="/vetrina/quiz" className="vt-btn vt-btn-bianco">
                 Trova il tuo mezzo
@@ -237,14 +237,22 @@ export default async function VetrinaHome() {
         <section className="vt-sez" id="marchi">
           <div className="vt-sez-testa">
             <div>
-              <h2>Catalogo da ordinare</h2>
-              <p className="vt-sub">Non lo trovi in pronta consegna? Lo ordiniamo per te, con il motore e l&apos;allestimento che vuoi. Scegli il marchio.</p>
+              <h2>La tua barca, configurata come la vuoi</h2>
+              <p className="vt-sub">Scegli modello, motore e allestimento: ti prepariamo un preventivo su misura. Parti da quello che cerchi.</p>
             </div>
           </div>
-          <div className="vt-marchi">
+          <ul className="vt-bisogni" aria-label="Che cosa cerchi">
+            {CATEGORIE.map((c) => (
+              <li key={c.id}>
+                <Link href={`/vetrina/mezzi?condizione=catalogo&categoria=${c.id}`}>{c.nome}</Link>
+              </li>
+            ))}
+          </ul>
+          <div className="vt-marchi-sec">
+            <span>Oppure scegli il marchio</span>
             {MARCHI.map((m) => (
               <Link key={m.slug} href={`/vetrina/marchi/${m.slug}`} className="vt-marchio" aria-label={`Catalogo ${m.nome}`}>
-                <LogoMarchio m={m} style={{ maxHeight: 50, width: "auto", maxWidth: "100%", objectFit: "contain" }} />
+                <LogoMarchio m={m} style={{ maxHeight: 30, width: "auto", maxWidth: "100%", objectFit: "contain" }} />
               </Link>
             ))}
           </div>
@@ -371,7 +379,7 @@ export default async function VetrinaHome() {
 
         <section id="appuntamento" className="vt-sez" style={{ paddingBottom: 0 }}>
           <div className="vt-box" style={{ maxWidth: 640, margin: "0 auto" }}>
-            <h2 style={{ fontSize: 28, color: "var(--blu-scuro)" }}>Prenota la tua visita o il tuo appuntamento</h2>
+            <h2 style={{ fontSize: 28, color: "var(--blu-scuro)" }}>Chiedi un preventivo o prenota una visita</h2>
             <p style={{ color: "var(--muted)", margin: "8px 0 18px" }}>Lasciaci un recapito: ti richiamiamo per fissare giorno e ora. Ti aspettiamo in {v.indirizzo}.</p>
             {sopraModulo.length > 0 && (
               <div className="vt-rec-mini">
@@ -390,7 +398,7 @@ export default async function VetrinaHome() {
           </div>
         </section>
       </div>
-      <BarraPrenota />
+      <BarraPrenota etichetta="Chiedi un preventivo" />
     </main>
   );
 }

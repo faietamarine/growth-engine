@@ -6,13 +6,15 @@ import { dividiNome, inviaLead } from "./invia-lead";
 
 export type MezzoRif = { id: string; etichetta: string; prezzo: number | null; condizione: string };
 
-/** Modulo "Prenota la tua visita o il tuo appuntamento": crea un lead (canale Sito) nel Growth Engine. */
+/** Modulo "Chiedi un preventivo o prenota una visita": crea un lead (canale Sito) nel Growth Engine.
+ *  La visita al mezzo vale solo per i mezzi in pronta consegna e l'usato; per i modelli a catalogo resta l'appuntamento in sede. */
 export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mezzo?: MezzoRif; versioneInformativa: string; telefono: string }) {
   const [stato, setStato] = useState<"idle" | "invio" | "ok">("idle");
   const [errore, setErrore] = useState<string | null>(null);
   const [campi, setCampi] = useState<Record<string, string>>({});
-  const [tipoScelto, setTipoScelto] = useState("Visita a bordo");
-  const provaPossibile = !!mezzo && mezzo.condizione !== "A catalogo";
+  const aCatalogo = mezzo?.condizione === "A catalogo";
+  const [tipoScelto, setTipoScelto] = useState(aCatalogo ? "Appuntamento in sede" : mezzo ? "Visita mezzo" : "Richiesta di preventivo");
+  const provaPossibile = !!mezzo && !aCatalogo;
   const domani = (() => { const d = new Date(Date.now() + 86_400_000); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
 
   async function invia(e: React.FormEvent<HTMLFormElement>) {
@@ -30,7 +32,7 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
       return setErrore("Completa i campi evidenziati.");
     }
     const { nome, cognome } = dividiNome(v("nominativo"));
-    const tipo = v("tipo") || "Visita a bordo";
+    const tipo = v("tipo") || tipoScelto;
     const risposte: Record<string, string> = { Richiesta: tipo };
     if (tipo === "Prova in mare" && v("fascia")) risposte["Fascia oraria"] = v("fascia");
     if (v("giorno")) risposte["Giorno preferito"] = v("giorno").split("-").reverse().join("/");
@@ -72,13 +74,21 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
 
   const err = (k: string) => (campi[k] ? <p className="vt-err">{campi[k]}</p> : null);
   return (
-    <form onSubmit={invia} noValidate className="vt-form" aria-label="Prenota la tua visita o il tuo appuntamento">
+    <form onSubmit={invia} noValidate className="vt-form" aria-label={mezzo ? (aCatalogo ? "Prendi appuntamento" : "Prenota visita mezzo") : "Chiedi un preventivo o prenota una visita"}>
       <fieldset>
         <legend className="sr-only">Che cosa vuoi fare</legend>
-        <label>
-          <input type="radio" name="tipo" value="Visita a bordo" checked={tipoScelto === "Visita a bordo"} onChange={(e) => setTipoScelto(e.target.value)} />
-          <span>Visita a bordo</span>
-        </label>
+        {!mezzo && (
+          <label>
+            <input type="radio" name="tipo" value="Richiesta di preventivo" checked={tipoScelto === "Richiesta di preventivo"} onChange={(e) => setTipoScelto(e.target.value)} />
+            <span>Chiedi un preventivo</span>
+          </label>
+        )}
+        {!aCatalogo && (
+          <label>
+            <input type="radio" name="tipo" value="Visita mezzo" checked={tipoScelto === "Visita mezzo"} onChange={(e) => setTipoScelto(e.target.value)} />
+            <span>Visita mezzo</span>
+          </label>
+        )}
         {provaPossibile && (
           <label>
             <input type="radio" name="tipo" value="Prova in mare" checked={tipoScelto === "Prova in mare"} onChange={(e) => setTipoScelto(e.target.value)} />
@@ -105,10 +115,12 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
         <input type="email" name="email" autoComplete="email" />
         {err("email")}
       </label>
-      <label className="vt-c">
-        Giorno che preferisci <span style={{ fontWeight: 500 }}>(facoltativo)</span>
-        <input type="date" name="giorno" min={domani} />
-      </label>
+      {tipoScelto !== "Richiesta di preventivo" && (
+        <label className="vt-c">
+          Giorno che preferisci <span style={{ fontWeight: 500 }}>(facoltativo)</span>
+          <input type="date" name="giorno" min={domani} />
+        </label>
+      )}
       {tipoScelto === "Prova in mare" && (
         <>
           <label className="vt-c">
@@ -150,7 +162,7 @@ export function FormAppuntamento({ mezzo, versioneInformativa, telefono }: { mez
       )}
       <button type="submit" className="vt-btn vt-btn-giallo" disabled={stato === "invio"}>
         {stato === "invio" && <Loader2 size={18} className="animate-spin" />}
-        Prenota la tua visita o il tuo appuntamento
+        {tipoScelto === "Richiesta di preventivo" ? "Chiedi un preventivo" : tipoScelto === "Visita mezzo" ? "Prenota visita mezzo" : tipoScelto === "Prova in mare" ? "Prenota la prova in mare" : "Prendi appuntamento"}
       </button>
     </form>
   );

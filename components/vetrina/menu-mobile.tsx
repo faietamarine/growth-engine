@@ -26,7 +26,7 @@ export function MenuMobile({ voci, telHref }: { voci: { href: string; nome: stri
         ))}
         <a href={telHref}>Chiamaci</a>
         <Link href="/vetrina#appuntamento" className="vt-btn vt-btn-giallo" onClick={() => ref.current && (ref.current.open = false)}>
-          Prenota visita
+          Chiedi un preventivo
         </Link>
       </nav>
     </details>

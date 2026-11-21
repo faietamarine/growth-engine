@@ -80,7 +80,7 @@ export default async function VetrinaLayout({ children }: { children: React.Reac
             </a>
             {v.whatsapp && <WhatsAppTesta numero={v.whatsapp} />}
             <Link href="/vetrina#appuntamento" className="vt-btn vt-btn-giallo vt-head-cta">
-              Prenota visita
+              Chiedi un preventivo
             </Link>
             <MenuMobile voci={vociMobile} telHref={telHref} />
           </div>

@@ -70,7 +70,7 @@ export default async function CatalogoMarchio({ params, searchParams }: { params
             Siamo dealer ufficiali {marchio.nome}: chiamaci al {v.telefono} per modelli, allestimenti e tempi di consegna.
             <div style={{ marginTop: 16 }}>
               <Link href="/vetrina#appuntamento" className="vt-btn vt-btn-giallo">
-                Prenota la tua visita o il tuo appuntamento
+                Chiedi un preventivo o prenota una visita
               </Link>
             </div>
           </div>

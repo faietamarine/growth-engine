@@ -462,3 +462,17 @@
 .vt-fin-punti{list-style:none;padding:0;margin:14px 0 16px;display:grid;gap:6px}
 .vt-fin-punti li{font-size:14.5px;font-weight:600}
 .vt-fin-punti li::before{content:"✓ ";color:#0B7A41;font-weight:800}
+
+/* Scheda a catalogo: una azione principale piena, due secondarie con bordo */
+.vt-scelta-tab.vt-scelta-cat{grid-template-columns:1fr 1fr}
+.vt-scelta-tab.vt-scelta-cat .vt-tab-prima{grid-column:1/-1;background:var(--giallo);border-color:var(--giallo);color:var(--ink);min-height:54px;font-size:15.5px}
+.vt-scelta-tab.vt-scelta-cat .vt-tab-prima.on{background:var(--giallo);border-color:var(--ink)}
+.vt-scelta-tab.vt-scelta-cat button:first-child.on svg{color:inherit}
+/* Catalogo da ordinare: ingresso per bisogno */
+.vt-bisogni{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 22px;padding:0;list-style:none}
+.vt-bisogni a{display:inline-flex;align-items:center;min-height:48px;padding:0 20px;border-radius:999px;background:#fff;border:2px solid var(--linea);font:700 15px Inter,sans-serif;color:var(--blu-scuro);text-decoration:none;transition:border-color .2s,transform .2s}
+.vt-bisogni a:hover{border-color:var(--blu);transform:translateY(-2px)}
+.vt-marchi-sec{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px}
+.vt-marchi-sec>span{font-weight:700;font-size:14px;color:var(--muted)}
+.vt-marchi-sec .vt-marchio{min-height:64px;padding:10px 16px;border-radius:14px;box-shadow:none;border:1px solid var(--linea);flex:0 0 auto}
+.vt-marchi-sec .vt-marchio img{max-height:30px}

@@ -78,7 +78,7 @@ export default async function Confronto({ searchParams }: { searchParams: Promis
                     {mezzi.map((m) => (
                       <td key={m.id}>
                         <Link href={`/vetrina/mezzo/${m.id}#appuntamento`} className="vt-btn vt-btn-giallo">
-                          Prenota visita
+                          Chiedi un preventivo
                         </Link>
                       </td>
                     ))}

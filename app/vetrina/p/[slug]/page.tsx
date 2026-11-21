@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: P): Promise<Metadata> {
   if (!p) return {};
   return {
     title: p.titolo,
-    description: `${p.titolo}: modelli, prezzi e disponibilità da Faieta Marine, concessionario ufficiale ${p.marcaNome}. Prenota la tua visita o il tuo appuntamento.`,
+    description: `${p.titolo}: modelli, prezzi e disponibilità da Faieta Marine, concessionario ufficiale ${p.marcaNome}. Chiedi un preventivo o prenota una visita.`,
     alternates: { canonical: `/vetrina/p/${p.slug}` },
   };
 }
@@ -85,7 +85,7 @@ export default async function Locale({ params }: P) {
           ))}
         </section>
         <div className="vt-box" style={{ maxWidth: 640, margin: "28px auto 0" }}>
-          <h2 style={{ marginTop: 0 }}>Prenota la tua visita o il tuo appuntamento</h2>
+          <h2 style={{ marginTop: 0 }}>Chiedi un preventivo o prenota una visita</h2>
           <FormAppuntamento versioneInformativa={s.versioneInformativa} telefono={v.telefono} />
         </div>
       </div>
