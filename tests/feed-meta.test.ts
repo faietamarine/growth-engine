@@ -38,3 +38,32 @@ test("CSV: virgolette e virgole protette, esclusi fuori", () => {
   assert.equal(righe.length, 2);
   assert.ok(righe[1].includes('""pronto""'));
 });
+
+import { righeAggiorna, rigaElenco, leggiCsv, abbinaMezzo } from "../lib/vetrina/strumenti";
+const mezzi = [
+  { id: "aaaaaaaa-1111-4111-8111-111111111111", marca: "joker-boat", modello: "Clubman 26" },
+  { id: "bbbbbbbb-2222-4222-8222-222222222222", marca: "joker-boat", modello: "Clubman 26" },
+  { id: "cccccccc-3333-4333-8333-333333333333", marca: "capelli", modello: "Tempest 600" },
+];
+
+test("aggiorna da file: codice, nome univoco, celle vuote non toccate, trattino svuota", () => {
+  const csv = leggiCsv('codice;marca;modello;prezzo;listino;promo fino al;cosa comprende;descrizione;stato\naaaaaaaa;;;68.900;74500;31/01/2027;Motore F300 | IVA inclusa;;Online\n;Capelli;Tempest 600;;-;;;"Nuova; bella";\n;Joker Boat;Clubman 26;1;;;;;\n');
+  const r = righeAggiorna(csv, mezzi);
+  assert.deepEqual(r[0].campi, { prezzo: 68900, prezzoListino: 74500, incluso: "Motore F300\nIVA inclusa", promoFine: "2027-01-31", stato: "PUBBLICATO" });
+  assert.equal(r[0].id, mezzi[0].id);
+  assert.deepEqual(r[1].campi, { prezzoListino: null, descrizione: "Nuova; bella" });
+  assert.match(r[2].errore ?? "", /stesso nome/);
+});
+
+test("elenco scaricabile: codice di 8 cifre e testi protetti", () => {
+  const riga = rigaElenco({ id: mezzi[2].id, marca: "capelli", modello: "Tempest 600", condizione: "PRONTA_CONSEGNA", stato: "PUBBLICATO", anno: 2026, prezzo: 39900, prezzoListino: null, promo: "", promoFine: "2027-01-31", motore: "", incluso: "A\nB", descrizione: 'Dice "ciao"; ok' });
+  assert.ok(riga.startsWith("cccccccc;Capelli;Tempest 600;"));
+  assert.ok(riga.includes("31/01/2027"));
+  assert.ok(riga.includes("A | B"));
+  assert.ok(riga.endsWith('"Dice ""ciao""; ok"'));
+});
+
+test("foto: il codice nel nome del file evita l'ambiguità", () => {
+  assert.deepEqual(abbinaMezzo("bbbbbbbb-3.jpg", mezzi), { id: mezzi[1].id, ordine: 3 });
+  assert.deepEqual(abbinaMezzo("bbbbbbbb.jpg", mezzi), { id: mezzi[1].id, ordine: 1 });
+});

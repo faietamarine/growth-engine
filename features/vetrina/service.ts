@@ -429,3 +429,32 @@ export async function importaRecensioniGoogle(user: User) {
   }
   return n;
 }
+
+/** Applica le modifiche del file "Aggiorna da file" ai mezzi esistenti (solo le celle compilate). */
+export async function aggiornaDaFile(csv: string[][], user: User) {
+  const { righeAggiorna } = await import("@/lib/vetrina/strumenti");
+  const tutti = await db.select({ id: vehicles.id, marca: vehicles.marca, modello: vehicles.modello, foto: vehicles.foto, prezzo: vehicles.prezzo, prezzoListino: vehicles.prezzoListino }).from(vehicles);
+  let aggiornati = 0;
+  const errori: string[] = [];
+  for (const r of righeAggiorna(csv, tutti).slice(0, 1000)) {
+    if (!r.campi || !r.id) {
+      errori.push(`Riga ${r.riga}: ${r.errore}`);
+      continue;
+    }
+    const m = tutti.find((x) => x.id === r.id)!;
+    if (r.campi.stato === "PUBBLICATO" && !m.foto.length) {
+      errori.push(`Riga ${r.riga}: senza foto non si può mettere online`);
+      continue;
+    }
+    const prezzo = "prezzo" in r.campi ? (r.campi.prezzo as number | null) : m.prezzo;
+    const listino = "prezzoListino" in r.campi ? (r.campi.prezzoListino as number | null) : m.prezzoListino;
+    if (listino != null && (prezzo == null || listino <= prezzo)) {
+      errori.push(`Riga ${r.riga}: il listino deve essere più alto del prezzo`);
+      continue;
+    }
+    await db.update(vehicles).set(r.campi as Partial<typeof vehicles.$inferInsert>).where(eq(vehicles.id, r.id));
+    aggiornati++;
+  }
+  await audit(user, "vetrina", "vehicle", "aggiorna-file", `aggiornati ${aggiornati} mezzi da file`);
+  return { aggiornati, errori };
+}

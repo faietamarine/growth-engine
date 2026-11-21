@@ -11,7 +11,7 @@ import { Flash } from "@/components/ui/flash";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { FotoCatalogo } from "@/components/vetrina/foto-catalogo";
 import { CsvFile } from "@/components/vetrina/csv-file";
-import { importaCsvAction, prezziAction } from "./actions";
+import { aggiornaCsvAction, importaCsvAction, prezziAction } from "./actions";
 
 export const metadata = { title: "Strumenti vetrina" };
 export const dynamic = "force-dynamic";
@@ -108,6 +108,18 @@ export default async function StrumentiPage({ searchParams }: { searchParams: Pr
           <form action={importaCsvAction} className="mt-3 space-y-3">
             <CsvFile />
             <SubmitButton confirm="Importo i mezzi del file?">Importa</SubmitButton>
+          </form>
+        </section>
+
+        <section className="card p-5">
+          <h2 className="flex items-center gap-2 text-[15px] font-semibold"><FileSpreadsheet size={17} /> Aggiorna i mezzi da Excel</h2>
+          <p className="mt-1 text-[13px] text-ink-soft">
+            Per cambiare in blocco descrizioni, prezzi, listino, promo e &quot;cosa comprende&quot;. <b>1.</b> Scarica l&apos;elenco dei mezzi. <b>2.</b> Aprilo in Excel e scrivi solo nelle celle da cambiare (una cella vuota non tocca niente; un trattino <code>-</code> la svuota). Nella colonna &quot;cosa comprende&quot; separa le voci con <code>|</code>. <b>3.</b> Salva come CSV e ricaricalo qui. Non cambiare la colonna &quot;codice&quot;: serve a riconoscere il mezzo.
+          </p>
+          <p className="mt-2"><a href="/mezzi/strumenti/elenco" className="inline-flex items-center gap-1 text-[13px] font-semibold text-info underline"><Download size={14} /> Scarica l&apos;elenco dei mezzi</a></p>
+          <form action={aggiornaCsvAction} className="mt-3 space-y-3">
+            <CsvFile />
+            <SubmitButton confirm="Aggiorno i mezzi con i dati del file?">Aggiorna</SubmitButton>
           </form>
         </section>
 

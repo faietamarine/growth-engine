@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
-import { abbinaFoto, duplicaMezzo, importaMezzi, segnaRichiamato, variaPrezzi } from "@/features/vetrina/service";
+import { abbinaFoto, aggiornaDaFile, duplicaMezzo, importaMezzi, segnaRichiamato, variaPrezzi } from "@/features/vetrina/service";
 import { leggiCsv, righeImport } from "@/lib/vetrina/strumenti";
 import { MARCHIO_SLUGS } from "@/lib/brands/catalog";
 import { CONDIZIONE_IDS } from "@/lib/vetrina/catalog";
@@ -119,4 +119,14 @@ export async function importaRecensioniGoogleAction(_: import("@/components/ui/a
   revalidatePath("/mezzi/recensioni");
   revalidatePath("/vetrina", "layout");
   return { ok: n ? `Importate ${n} recensioni Google: sono già sul sito.` : "Le recensioni Google scelte sono già presenti." };
+}
+
+export async function aggiornaCsvAction(form: FormData) {
+  const user = await requireUser("contenuti:scrivi");
+  const testo = String(form.get("csv") ?? "");
+  if (testo.length > 2_000_000) redirect(msg("/mezzi/strumenti", "File troppo grande.", "errore"));
+  const { aggiornati, errori } = await aggiornaDaFile(leggiCsv(testo), user);
+  rinfresca();
+  const dettagli = errori.length ? ` Da correggere: ${errori.slice(0, 4).join(" · ")}${errori.length > 4 ? ` … (+${errori.length - 4})` : ""}` : "";
+  redirect(msg("/mezzi/strumenti", `Aggiornati ${aggiornati} mezzi.${dettagli}`, aggiornati ? "msg" : "errore"));
 }
